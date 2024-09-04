@@ -5,8 +5,8 @@ CampQuest is a campsite search application where users can specify a number of c
 ### [William Dalian](https://github.com/wildal99) - Team Lead
 I am in my second semester as a computer science masters student at Eastern Michigan University. I enjoy both the outdoors and building solutions with technology and look forward to working on this project which will combine both. My development background is in Python and Java and I've dabbled with C, C# and MySQL. 
 ### [2nd Team Member / Deputy Team Lead] ()
-### [3rd Team Member] ()
-
+### [Spenser Williams] ()
+I am a senior in my last semester as a Data Science and Analytics major here at Eastern. I really enjoy stats and math, but I'm excited to learn some new programming techniques while doing this project. My programming background is primarily in Java, Python, SQL, and R.
 ## Team Policies
 ### Absence Policy
 - If a team member cannot attend a class or meeting due to illness, or a family emergency they should alert the rest of the team as soon as they are able and communicate updates to the rest of the team. They will be given a summary of what was discussed at the team meeting, and what their and the teams next steps are.
