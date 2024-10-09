@@ -6,10 +6,10 @@ require('dotenv').config();
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 // Use CORS middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // or '*' to allow all origins
+  origin: 'http://localhost:3000',
   methods: 'GET,POST,PUT,DELETE',
   credentials: true
 }));
@@ -22,12 +22,12 @@ const uri = process.env.MONGO_URI;
 mongoose.connect(uri)
   .then(() => console.log("MongoDB database connection established successfully"))
   .catch(err => console.log("MongoDB connection error:", err));
-mongoose
+
 // Define routes
 const campRouter = require('./routes/campgrounds');
 app.use('/camps', campRouter);
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
 });
