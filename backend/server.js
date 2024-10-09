@@ -5,8 +5,8 @@ require('dotenv').config();
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 5000;  // Changed to 5001
-
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Use CORS middleware
 app.use(cors({
   origin: 'http://localhost:3000', // or '*' to allow all origins
