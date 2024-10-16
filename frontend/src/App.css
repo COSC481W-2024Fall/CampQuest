@@ -1,4 +1,5 @@
 /* General Styles */
+/* General Styles */
 .App {
   text-align: center;
   font-family: 'Arial', sans-serif;
@@ -6,7 +7,6 @@
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  
   background-image: url('./background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
@@ -14,38 +14,41 @@
 }
 
 .App-header {
-  background-color: #283c44; /* Darker background for the header */
-  min-height: 60px; /* Reduce height for a more compact header */
+  background-color: #283c44;
+  min-height: 60px;
   display: flex;
-  flex-direction: row; /* Align header items horizontally */
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between; /* Add spacing between logo and nav */
+  justify-content: space-between;
   padding: 0 20px;
   font-size: 18px;
   color: white;
+}
+
+.navbar-logo {
+  height: 100px; /* Adjust the height for a more reasonable size */
+  width: auto;  /* Maintain aspect ratio */
 }
 
 .App-link {
   color: #61dafb;
   text-decoration: none;
 }
-.navbar-logo {
-  height: 300px; /* Set the desired height */
-  width: auto;  /* Maintain aspect ratio */
-  margin-right: 10px;
-}
+
 .App-link:hover {
   text-decoration: underline;
 }
 
-/* Campground List */
-.camp-list {
-  text-align: center;
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .navbar-logo {
+    height: 60px; /* Make the logo smaller on mobile screens */
+  }
 }
 
 .camp-cards-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two cards across */
+  grid-template-columns: repeat(3, 1fr); /* 3 columns on larger screens */
   gap: 20px;
   justify-items: center;
 }
@@ -66,10 +69,6 @@
 .camp-cord {
   font-size: 1em;
   color: #666;
-}
-
-.camp-actions {
-  margin-top: 10px;
 }
 
 .pagination {
@@ -95,47 +94,15 @@
   margin: 0 10px;
   font-size: 1.2em;
 }
-.camp-actions a,
-.camp-actions button {
-  background-color: #61dafb;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  color: white;
-  text-transform: uppercase;
-  font-size: 12px;
-  cursor: pointer;
-  text-decoration: none;
-}
 
-.camp-actions button {
-  background-color: #e74c3c; /* Red color for delete button */
-}
-
-.camp-actions button:hover {
-  background-color: #c0392b;
-}
-
-.camp-actions a:hover {
-  background-color: #45a1f1;
-}
-
-button.delete-button {
-  background-color: #e74c3c;
-  color: white;
-}
-
-/* Responsive Styles */
-@media screen and (max-width: 768px) {
-  .camp-card {
-    flex-direction: column;
-    align-items: flex-start;
+@media screen and (max-width: 1024px) {
+  .camp-cards-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
   }
+}
 
-  .camp-actions {
-    margin-top: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+@media screen and (max-width: 768px) {
+  .camp-cards-container {
+    grid-template-columns: 1fr; /* 1 column on mobile */
   }
 }
