@@ -7,7 +7,7 @@ const CampList = () => {
   const [camps, setCamp] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");  // New state for search
-  const campsPerPage = 20;
+  const campsPerPage = 12;
 
   // Fetch campgrounds from backend
   useEffect(() => {
@@ -45,10 +45,9 @@ const CampList = () => {
 
   return (
     <div className="camp-list">
-      <h1>Camps</h1>
 
       {/* Search input */}
-      <input
+      <input className="searchText"
         type="text"
         placeholder="Search camps by name..."
         value={searchTerm}
@@ -58,15 +57,17 @@ const CampList = () => {
       <div className="camp-cards-container">
         {currentCamps.length > 0 ? (
           currentCamps.map(camp => (
+            <Link to = {"/view/" + camp._id} >
             <div key={camp._id} className="camp-card">
               <div className="camp-info">
                 <h2 className="camp-title">{camp.name}</h2>
                 <h4 className="camp-cord">City: {camp.city} | State: {camp.state} | Type: {camp.type}</h4>
                 <div className="camp-actions">
-                  <Link to={"/view/" + camp._id}>View</Link>
+                  View
                 </div>
               </div>
             </div>
+            </Link>
           ))
         ) : (
           <p>No camps available</p>

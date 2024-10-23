@@ -39,6 +39,20 @@
   text-decoration: underline;
 }
 
+/*style links*/
+  a:link { 
+    text-decoration: none; 
+  } 
+  a:visited { 
+    text-decoration: none; 
+  } 
+  a:hover { 
+    text-decoration: none; 
+  } 
+  a:active { 
+    text-decoration: none; 
+  }
+
 /* Responsive Styles */
 @media screen and (max-width: 768px) {
   .navbar-logo {
@@ -46,33 +60,70 @@
   }
 }
 
-.camp-cards-container {
+.camp-list{
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns on larger screens */
-  gap: 20px;
-  justify-items: center;
+  justify-content: center;
+  padding-left: 2pc;
+  padding-right: 2pc;
+}
+
+input.searchText{
+  margin-top: 0.5pc;
+  margin-bottom: 1.5pc;
+}
+
+.camp-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2pc;
+  justify-content: center;
+  max-width: 1500px;
+  
 }
 
 .camp-card {
+  background-image: url("camp.jpg");
+  background-size: contain;
+  display: flex;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 300px;
+  padding: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  width: 260px;
+  height: 200px;
+  justify-content: center;
+  align-items: end;
+}
+
+.camp-info{
+  width: 250px;
+  border-radius: 8px;
+  background-color: white;
+  align-items: center;
+  align-content: end;
+  padding-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .camp-title {
-  font-size: 1.5em;
-  margin-bottom: 10px;
+  font-size: 1.1em;
+  margin-top: 3px;
+  margin-bottom: 0px;
+  color: #283c44;
 }
 
 .camp-cord {
-  font-size: 1em;
+  font-size: 0.67em;
   color: #666;
+  margin: 0px;
+  padding: 0px;
 }
 
 .pagination {
   margin-top: 20px;
+  color: #666
 }
 
 .pagination button {
@@ -93,16 +144,4 @@
 .pagination span {
   margin: 0 10px;
   font-size: 1.2em;
-}
-
-@media screen and (max-width: 1024px) {
-  .camp-cards-container {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .camp-cards-container {
-    grid-template-columns: 1fr; /* 1 column on mobile */
-  }
 }
