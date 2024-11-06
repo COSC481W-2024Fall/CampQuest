@@ -20,7 +20,12 @@
             phoneNumber,
             campgroundType,
             numSites,
-            datesOpen
+            datesOpen, 
+            city, 
+            state,
+            amenities, 
+            nearestTownDistance, 
+            nearestTownBearing
         });
 
         newCampground.save()

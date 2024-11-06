@@ -31,12 +31,12 @@ const CampView = () => {
           </div>
 
         <div className="camp-details">
-          <h1>{camp.name}</h1>
+        <h1>{camp.campgroundName}</h1>
           <p><strong>Location:</strong> {camp.latitude}, {camp.longitude}</p>
           <p><strong>City:</strong> {camp.city}</p>
           <p><strong>State:</strong> {camp.state}</p>
-          <p><strong>Campground Type:</strong> {camp.type}</p>
-          <p><strong>Phone:</strong> {camp.phone}</p>
+          <p><strong>Campground Type:</strong> {camp.campgroundType}</p>
+          <p><strong>Phone:</strong> {camp.phoneNumber}</p>
           <p><strong>Number of Sites:</strong> {camp.numSites}</p>
           <p><strong>Dates Open:</strong> {camp.datesOpen || 'N/A'}</p>
           <Link to={"/"}>Back</Link>
