@@ -8,7 +8,7 @@ const app = express();
 
 // Use CORS middleware with specific configuration
 app.use(cors({
-  origin: true, // Allow all origins
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
@@ -26,7 +26,7 @@ app.use(express.json());
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    const uri = functions.config().mongo.uri;
+    const uri = process.env.MONGODB_URI || functions.config().mongo.uri;
     console.log('Attempting MongoDB connection...');
     
     if (!uri) {
@@ -68,20 +68,29 @@ app.get('/', (req, res) => {
 app.get('/camps', async (req, res) => {
   console.log('Received request for /camps');
   try {
+    console.log('Attempting to connect to MongoDB...');
     await connectDB();
-    console.log('Connected to MongoDB, fetching camps...');
+    console.log('MongoDB connection successful');
+    
+    console.log('Attempting to fetch camps...');
     const camps = await Camp.find();
-    console.log(`Found ${camps.length} camps`);
+    console.log(`Successfully found ${camps.length} camps`);
+    
     res.json(camps);
   } catch (error) {
-    console.error('Error in /camps route:', error);
+    console.error('Detailed error in /camps route:', error);
     res.status(500).json({ 
       error: 'Failed to fetch camps',
-      details: error.message
+      details: error.message,
+      stack: error.stack
     });
   }
 });
-
+// In your backend index.js
+app.use(cors({
+  origin: ['http://localhost:3000', 'your-frontend-deployed-url'],
+  credentials: false // Change this to false since we're not using cookies
+}));
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -92,9 +101,4 @@ app.use((err, req, res, next) => {
 });
 
 // Export the Express app as a Firebase Function
-exports.app = functions
-  .runWith({
-    timeoutSeconds: 300,
-    memory: '1GB'
-  })
-  .https.onRequest(app);
+exports.campquest = functions.https.onRequest(app);

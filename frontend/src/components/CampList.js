@@ -12,21 +12,21 @@ const CampList = () => {
   const campsPerPage = 12;
 
   // Use the correct Cloud Run URL
-  const API_URL = 'https://app-4kzkpiof5q-uc.a.run.app';
+// CampList.js
+const API_URL = 'https://us-central1-campque-c9b14.cloudfunctions.net/campquest'; // Update this URL
 
-  useEffect(() => {
+useEffect(() => {
     const fetchCamps = async () => {
       try {
         setIsLoading(true);
         console.log('Attempting to fetch camps from:', `${API_URL}/camps`);
         
-        const response = await axios.get(`${API_URL}/camps`, {
+        const response = await axios.get(`${API_URL}/camps`, {  // Changed from / to /camps
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Origin': window.location.origin // Add origin header
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
           },
-          withCredentials: true
+          // Remove withCredentials: true since we're not using cookies
         });
         
         console.log('Response received:', response);
@@ -41,13 +41,7 @@ const CampList = () => {
         setCamps(campsData);
         setError(null);
       } catch (error) {
-        console.error('Detailed fetch error:', {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data
-        });
-        
+        console.error('Detailed fetch error:', error);
         setError(`Failed to load camps: ${error.message}`);
         setCamps([]);
       } finally {
@@ -56,9 +50,72 @@ const CampList = () => {
     };
 
     fetchCamps();
-  }, []);
+}, []);
 
-  // Rest of your component code remains the same...
+ // Filter camps based on search term
+ const filteredCamps = camps.filter(camp =>
+  camp.campgroundName.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+// Pagination logic
+const indexOfLastCamp = currentPage * campsPerPage;
+const indexOfFirstCamp = indexOfLastCamp - campsPerPage;
+const currentCamps = filteredCamps.slice(indexOfFirstCamp, indexOfLastCamp);
+
+// Change page
+const nextPage = () => {
+  if (currentPage < Math.ceil(filteredCamps.length / campsPerPage)) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+const prevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
+
+return (
+  <div className="camp-list">
+
+    {/* Search input */}
+    <input className="searchText"
+      type="text"
+      placeholder="Search camps by name..."
+      value={searchTerm}
+      onChange={e => setSearchTerm(e.target.value)}
+    />
+    
+    <div className="camp-cards-container">
+      {currentCamps.length > 0 ? (
+        currentCamps.map(camp => (
+          <Link to = {"/view/" + camp._id} >
+          <div key={camp._id} className="camp-card">
+            <div className="camp-info">
+              <h2 className="camp-title">{camp.name}</h2>
+              <h4 className="camp-cord">City: {camp.city} | State: {camp.state} | Type: {camp.type}</h4>
+              <div className="camp-actions">
+                View
+              </div>
+            </div>
+          </div>
+          </Link>
+        ))
+      ) : (
+        <p>No camps available</p>
+      )}
+    </div>
+
+    {/* Pagination */}
+    <div className="pagination">
+      <button onClick={prevPage} disabled={currentPage === 1}>&lt;</button>
+      <span> Page {currentPage} of {Math.ceil(filteredCamps.length / campsPerPage)} </span>
+      <button onClick={nextPage} disabled={currentPage === Math.ceil(filteredCamps.length / campsPerPage)}>&gt;</button>
+    </div>
+  </div>
+);
+
+
 };
 
 export default CampList;

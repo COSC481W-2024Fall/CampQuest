@@ -9,7 +9,7 @@ const CampView = () => {
   const [camp, setCamp] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://campque-c9b14.web.app/camps/${id}`)
+    axios.get(`https://us-central1-campque-c9b14.cloudfunctions.net/campquest/camps/${id}`)
       .then(response => {
         setCamp(response.data);
       })
