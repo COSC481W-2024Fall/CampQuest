@@ -11,22 +11,19 @@ const CampList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const campsPerPage = 12;
 
-  // Use the correct Cloud Run URL
-// CampList.js
-const API_URL = 'https://us-central1-campque-c9b14.cloudfunctions.net/campquest'; // Update this URL
+  const API_URL = 'https://us-central1-campque-c9b14.cloudfunctions.net/campquest'; // Update the URL
 
-useEffect(() => {
+  useEffect(() => {
     const fetchCamps = async () => {
       try {
         setIsLoading(true);
         console.log('Attempting to fetch camps from:', `${API_URL}/camps`);
         
-        const response = await axios.get(`${API_URL}/camps`, {  // Changed from / to /camps
+        const response = await axios.get(`${API_URL}/camps`, {
           headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
           },
-          // Remove withCredentials: true since we're not using cookies
         });
         
         console.log('Response received:', response);
@@ -50,30 +47,30 @@ useEffect(() => {
     };
 
     fetchCamps();
-}, []);
+  }, []);
 
- // Filter camps based on search term
- const filteredCamps = camps.filter(camp =>
-  camp.campgroundName.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  // Filter camps based on search term
+  const filteredCamps = camps.filter(camp =>
+    camp.campgroundName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-// Pagination logic
-const indexOfLastCamp = currentPage * campsPerPage;
-const indexOfFirstCamp = indexOfLastCamp - campsPerPage;
-const currentCamps = filteredCamps.slice(indexOfFirstCamp, indexOfLastCamp);
+  // Pagination logic
+  const indexOfLastCamp = currentPage * campsPerPage;
+  const indexOfFirstCamp = indexOfLastCamp - campsPerPage;
+  const currentCamps = filteredCamps.slice(indexOfFirstCamp, indexOfLastCamp);
 
-// Change page
-const nextPage = () => {
-  if (currentPage < Math.ceil(filteredCamps.length / campsPerPage)) {
-    setCurrentPage(currentPage + 1);
-  }
-};
+  // Change page
+  const nextPage = () => {
+    if (currentPage < Math.ceil(filteredCamps.length / campsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-const prevPage = () => {
-  if (currentPage > 1) {
-    setCurrentPage(currentPage - 1);
-  }
-};
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
 return (
   <div className="camp-list">
