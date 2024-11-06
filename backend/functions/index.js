@@ -8,10 +8,8 @@ const app = express();
 
 // Use CORS middleware with specific configuration
 app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
+  origin: ['http://localhost:3000', 'https://campque-c9b14.web.app'],
+  credentials: false
 }));
 
 // Add logging middleware
@@ -40,7 +38,7 @@ const connectDB = async () => {
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    throw error;
+    throw new Error('Failed to connect to MongoDB');
   }
 };
 
@@ -86,11 +84,7 @@ app.get('/camps', async (req, res) => {
     });
   }
 });
-// In your backend index.js
-app.use(cors({
-  origin: ['http://localhost:3000', 'your-frontend-deployed-url'],
-  credentials: false // Change this to false since we're not using cookies
-}));
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
