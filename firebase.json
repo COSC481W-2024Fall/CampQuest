@@ -1,0 +1,15 @@
+{
+    "functions": {
+      "source": "backend/functions",
+      "runtime": "nodejs18"
+    },
+    "hosting": {
+      "public": "frontend/build",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    }
+  }
+  

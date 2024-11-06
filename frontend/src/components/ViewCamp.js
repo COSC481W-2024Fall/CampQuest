@@ -9,7 +9,7 @@ const CampView = () => {
   const [camp, setCamp] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/camps/${id}`)
+    axios.get(`http://campque-c9b14.web.app/camps/${id}`)
       .then(response => {
         setCamp(response.data);
       })
@@ -17,6 +17,7 @@ const CampView = () => {
         console.log('Error fetching campground details:', error);
       });
   }, [id]);
+  
 
   return (
     <div className="view-camp-container">
