@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Campground = require('./models/Campground_model');
+const campgroundData = require('./campground-data');
 
 const connectDB = async() => {
     try{
@@ -8,28 +9,26 @@ const connectDB = async() => {
             useUnifiedTopology: true
         });
         console.log(`MongoDB Connected: ${conn.connection.host}`);
-        //Hardcoded Data
-        const campsite = new Campground({
-            campgroundName: "Ackley Creek County Park",
-            campgroundCode: "ACKL",
-            longitude: 92.875,
-            latitude: 42.953,
-            phoneNumber: "641.756.3490",
-            campgroundType: "CP",
-            numSites: 40,
-            datesOpen: ""
-        });
-        //Saves campground to database
-        await campsite.save();
+
+        // Save hardcoded campground data
+        for (const data of campgroundData) {
+            const campsite = new Campground(data);
+            await campsite.save();
+        }
         console.log("Campground data saved");
-
-        mongoose.connection.close();
-        console.log("MongoDB connection is closed.")
-
     }
     catch(error) {
         console.error(`Error: ${error.message}`);
         process.exit(1);
+    }
+};
+
+const closeDBConnection = async() => {
+    try {
+        await mongoose.connection.close();
+        console.log("MongoDB connection is closed.");
+    } catch (error) {
+        console.error(`Error closing MongoDB connection: ${error.message}`);
     }
 };
 
