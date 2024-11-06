@@ -89,8 +89,10 @@ return (
           <Link to = {"/view/" + camp._id} >
           <div key={camp._id} className="camp-card">
             <div className="camp-info">
-            <h2 className="camp-title">{camp.campgroundName}</h2>
-            <h4 className="camp-cord">City: {camp.city} | State: {camp.state} | Type: {camp.campgroundType}</h4>
+              <h2 className="camp-title">{camp.campgroundName}</h2>
+              <h4 className="camp-cord">
+                Location: {camp.latitude}, {camp.longitude} | Type: {camp.campgroundType}
+              </h4>
               <div className="camp-actions">
                 View
               </div>

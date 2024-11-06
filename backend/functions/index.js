@@ -6,20 +6,60 @@ const cors = require("cors");
 // Initialize Express app
 const app = express();
 
-// Use CORS middleware with specific configuration
 app.use(cors({
   origin: ['http://localhost:3000', 'https://campque-c9b14.web.app'],
   credentials: false
 }));
 
-// Add logging middleware
+// Middleware
+app.use(express.json());
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// Middleware
-app.use(express.json());
+// Use your existing campground schema
+const campgroundSchema = new mongoose.Schema({
+    campgroundName: {
+        type: String,
+        required: true
+    },
+    campgroundCode: {
+        type: String,
+        required: false
+    },
+    longitude: {
+        type: Number,
+        required: true
+    },
+    latitude: {
+        type: Number,
+        required: true
+    },
+    phoneNumber: {
+        type: String,
+        required: true
+    },
+    campgroundType: {
+        type: String,
+        required: false
+    },
+    numSites: {
+        type: Number,
+        required: false
+    },
+    datesOpen: {
+        type: String,
+        required: false
+    }
+}, { collection: 'Campsites.ProductionCampsites' });
+
+let Campground;
+try {
+  Campground = mongoose.model('Campground');
+} catch {
+  Campground = mongoose.model('Campground', campgroundSchema);
+}
 
 // MongoDB Connection
 let isConnected = false;
@@ -30,13 +70,14 @@ const connectDB = async () => {
     return;
   }
   try {
-    const uri = process.env.MONGODB_URI || functions.config().mongo.uri;
+    const uri = process.env.MONGODB_URI;
     console.log('Attempting MongoDB connection...');
     
     if (!uri) {
       throw new Error('MongoDB URI is not configured');
     }
     
+<<<<<<< Updated upstream
     await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -45,36 +86,20 @@ const connectDB = async () => {
       poolSize: 10                     // Increase the connection pool size
     });
     isConnected = true;
+=======
+    await mongoose.connect(uri);
+>>>>>>> Stashed changes
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    throw new Error('Failed to connect to MongoDB');
+    throw error;
   }
 };
-
-// Define Camp Schema
-const campSchema = new mongoose.Schema({
-  name: String,
-  city: String,
-  state: String,
-  type: String
-}, { timestamps: true });
-
-let Camp;
-try {
-  Camp = mongoose.model('Camp');
-} catch {
-  Camp = mongoose.model('Camp', campSchema);
-}
-
-// Health check route
-app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'CampQuest API is running' });
-});
 
 // Camps routes
 app.get('/camps', async (req, res) => {
   try {
+<<<<<<< Updated upstream
     console.log('Fetching camps...');
     const limit = parseInt(req.query.limit) || 12; // 12 per page by default
     const page = parseInt(req.query.page) || 1;
@@ -84,6 +109,12 @@ app.get('/camps', async (req, res) => {
       .limit(limit)
       .skip((page - 1) * limit);
 
+=======
+    await connectDB();
+    console.log('Attempting to fetch camps...');
+    const camps = await Campground.find();
+    console.log(`Successfully found ${camps.length} camps`);
+>>>>>>> Stashed changes
     res.json(camps);
   } catch (error) {
     console.error('Error fetching camps:', error);
@@ -105,5 +136,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Export the Express app as a Firebase Function
 exports.campquest = functions.https.onRequest(app);
