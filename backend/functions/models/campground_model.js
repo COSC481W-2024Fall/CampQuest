@@ -35,7 +35,7 @@ const campgroundSchema = new mongoose.Schema({
     }
     
 
-},{ collection: 'ProductionCampsites' });
+},{ collection: 'Campsites.ProductionCampsites' });
 
 const Campground = mongoose.model('Campground', campgroundSchema);
 module.exports = Campground;

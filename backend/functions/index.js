@@ -22,7 +22,13 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 // MongoDB Connection
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected) {
+    console.log('Reusing existing MongoDB connection');
+    return;
+  }
   try {
     const uri = process.env.MONGODB_URI || functions.config().mongo.uri;
     console.log('Attempting MongoDB connection...');
@@ -33,8 +39,12 @@ const connectDB = async () => {
     
     await mongoose.connect(uri, {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000, // Increase to 10 seconds
+      socketTimeoutMS: 45000,          // Increase to 45 seconds if needed
+      poolSize: 10                     // Increase the connection pool size
     });
+    isConnected = true;
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
@@ -64,26 +74,27 @@ app.get('/', (req, res) => {
 
 // Camps routes
 app.get('/camps', async (req, res) => {
-  console.log('Received request for /camps');
   try {
-    console.log('Attempting to connect to MongoDB...');
+    console.log('Fetching camps...');
+    const limit = parseInt(req.query.limit) || 12; // 12 per page by default
+    const page = parseInt(req.query.page) || 1;
+    
     await connectDB();
-    console.log('MongoDB connection successful');
-    
-    console.log('Attempting to fetch camps...');
-    const camps = await Camp.find();
-    console.log(`Successfully found ${camps.length} camps`);
-    
+    const camps = await Camp.find()
+      .limit(limit)
+      .skip((page - 1) * limit);
+
     res.json(camps);
   } catch (error) {
-    console.error('Detailed error in /camps route:', error);
+    console.error('Error fetching camps:', error);
     res.status(500).json({ 
       error: 'Failed to fetch camps',
       details: error.message,
-      stack: error.stack
+      stack: error.stack 
     });
   }
 });
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
