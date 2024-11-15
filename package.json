@@ -4,13 +4,28 @@
   "description": "CampQuest is a campsite search application where users can specify a number of criteria for what they are looking for in a campsite. It's goal is to make it easier to find and compare campgrounds that match the user's specified criteria across a number of providers. It will return a list of campgrounds that match the users preferences and display information about them. Additionally, it will provide a provision for users to submit information about campgrounds to maintain the accuracy of it's campground data as well as to review campgrounds to help other users inform their selections.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "install-server": "cd backend && npm install",
     "start-server": "cd backend && node server.js",
     "install-client": "cd frontend && npm install",
     "build-client": "cd frontend && npm run build",
-    "start-client": "cd frontend && npm run start"
+    "start-client": "cd frontend && npm run start",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
+
+  "jest": {
+    "transformIgnorePatterns": ["node_modules/(?!axios)/"]
+  },
+
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/COSC481W-2024Fall/CampQuest.git"
@@ -28,6 +43,8 @@
     "selenium-webdriver": "^4.25.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.0.1",
     "jest": "^29.7.0",
     "mocha": "^10.7.3",
     "supertest": "^7.0.0"
