@@ -5,7 +5,6 @@ import '../App.css';
 import '../DetailsPage.css';
 
 const CampView = () => {
-  console.log("hello from campview.")
 
   const { id } = useParams(); // Get the campground ID from the URL
   const [camp, setCamp] = useState(null);
@@ -50,7 +49,7 @@ return(
           </div>
           </div>
 
-        <div className="camp-details">
+        <div role = "camp-details" className="camp-details">
           <h1>{camp.campgroundName}</h1>
           <p><strong>Location:</strong> {camp.latitude}, {camp.longitude}</p>
           <p><strong>City:</strong> {camp.city}</p>
@@ -97,7 +96,7 @@ return(
         </div> 
         </> 
       ) : (
-        <p>Loading camp details...</p>
+        <p role="loading">Loading camp details...</p>
       )}
       
     </div>

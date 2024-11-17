@@ -3,5 +3,6 @@ import CampView from "./ViewCamp"
 
 test('on inital render, the page displays loading camp details',()=>{
     render(<CampView />);
-    screen.debug();
+    //screen.debug();
+    expect(screen.getByRole ('loading'))
 })
