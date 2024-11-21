@@ -10,7 +10,8 @@ const app = express();
 app.use(cors({
   origin: '*', // or '*' to allow all origins
   methods: 'GET,POST,PUT,DELETE',
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware to parse JSON
