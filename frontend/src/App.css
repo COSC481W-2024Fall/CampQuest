@@ -41,14 +41,16 @@
 /* Style Links */
 a {
   text-decoration: none;
+  color: inherit; /* Inherit text color from parent */
+}
+
+a:hover {
+  text-decoration: underline; /* Add underline on hover for accessibility */
+  color: #38792a; /* Highlight hover color */
 }
 
 a:visited {
   color: inherit;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 a:active {
@@ -83,39 +85,39 @@ input.searchText {
 .camp-cards-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 16px; /* Space between cards */
   justify-content: center;
-  max-width: 1500px;
+  max-width: 1200px; /* Limit container width */
+  margin: auto; /* Center the container */
 }
 
-/* Camp Card Styles */
 .camp-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
   background-color: #f9f9f9;
-  background-image: url('camp.jpg');
-  background-size: cover;
-  background-position: center;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  width: 260px;
-  height: 200px;
+  width: 200px; /* Fixed card width */
+  height: 250px; /* Fixed card height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Align content inside the card */
+  align-items: center;
+  text-align: center;
+  overflow: hidden; /* Prevent content from overflowing */
+  padding: 10px; /* Add consistent padding */
 }
 
 .camp-info {
-  background-color: rgba(255, 255, 255, 0.9); /* Slight transparency for better readability */
-  border-radius: 8px;
-  padding: 8px;
-  text-align: center;
+  background-color: rgba(255, 255, 255, 0.9); /* Light background for info section */
+  padding: 10px; /* Add spacing around text */
+  border-radius: 5px;
+  width: 90%; /* Make it smaller than the card */
 }
 
 .camp-title {
-  font-size: 1.1em;
-  margin: 4px 0;
+  font-size: 1.2em;
   color: #283c44;
   font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .camp-cord {
