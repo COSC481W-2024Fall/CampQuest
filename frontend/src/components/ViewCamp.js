@@ -72,7 +72,7 @@ const CampView = () => {
 
   //load campgrounds from the database
   useEffect(() => {
-    axios.get('http://localhost:5000/camps/')
+    axios.get('${process.env.REACT_APP_API_URL}/camps/')
       .then(response => {
         setCampList(response.data);
       })
@@ -157,7 +157,6 @@ return(
   }
 export default CampView;
 
-
 //Find the similarity scores of all campgrounds, sort the camp list based on similarity.
 function findSimilar(self, others){
 
@@ -175,7 +174,6 @@ function findSimilar(self, others){
   campSimilarity.sort((a, b) => a.similarity - b.similarity);
   return campSimilarity
 }
-
 
 //find ammenities score based on number of missing ammenities.
 function computeAmmenities(self, other){
@@ -208,7 +206,6 @@ function computeDistance(latCurr, longCurr, latCamp, longCamp){
   let dist= Math.acos((Math.sin(findRadians(latCurr)) * Math.sin(findRadians(latCamp))) + (Math.cos(findRadians(latCurr)) * Math.cos(findRadians(latCamp))) * (Math.cos(findRadians(longCamp) - findRadians(longCurr)))) * 6371
   return dist
 }
-
 
 // convert degrees to radians.
 function findRadians(degrees)

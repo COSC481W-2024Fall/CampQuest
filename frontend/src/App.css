@@ -1,5 +1,4 @@
 /* General Styles */
-/* General Styles */
 .App {
   text-align: center;
   font-family: 'Arial', sans-serif;
@@ -26,7 +25,7 @@
 }
 
 .navbar-logo {
-  height: 100px; /* Adjust the height for a more reasonable size */
+  height: 80px; /* Optimized for better visual appearance */
   width: auto;  /* Maintain aspect ratio */
 }
 
@@ -39,91 +38,98 @@
   text-decoration: underline;
 }
 
-/*style links*/
-  a:link { 
-    text-decoration: none; 
-  } 
-  a:visited { 
-    text-decoration: none; 
-  } 
-  a:hover { 
-    text-decoration: none; 
-  } 
-  a:active { 
-    text-decoration: none; 
-  }
+/* Style Links */
+a {
+  text-decoration: none;
+}
+
+a:visited {
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:active {
+  text-decoration: none;
+}
 
 /* Responsive Styles */
 @media screen and (max-width: 768px) {
   .navbar-logo {
-    height: 60px; /* Make the logo smaller on mobile screens */
+    height: 60px; /* Smaller logo for mobile screens */
   }
 }
 
-.camp-list{
+/* Camp List Styles */
+.camp-list {
   display: grid;
   justify-content: center;
-  padding-left: 2pc;
-  padding-right: 2pc;
+  padding: 16px;
 }
 
-input.searchText{
-  margin-top: 0.5pc;
-  margin-bottom: 1.5pc;
+input.searchText {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 .camp-cards-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 2pc;
+  gap: 16px;
   justify-content: center;
   max-width: 1500px;
-  
 }
 
+/* Camp Card Styles */
 .camp-card {
-  background-image: url("camp.jpg");
-  background-size: contain;
   display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   background-color: #f9f9f9;
+  background-image: url('camp.jpg');
+  background-size: cover;
+  background-position: center;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 10px;
-  padding-top: 5px;
-  padding-bottom: 5px;
   width: 260px;
   height: 200px;
-  justify-content: center;
-  align-items: end;
 }
 
-.camp-info{
-  width: 250px;
+.camp-info {
+  background-color: rgba(255, 255, 255, 0.9); /* Slight transparency for better readability */
   border-radius: 8px;
-  background-color: white;
-  align-items: center;
-  align-content: end;
-  padding-bottom: 3px;
-  margin-bottom: 4px;
+  padding: 8px;
+  text-align: center;
 }
 
 .camp-title {
   font-size: 1.1em;
-  margin-top: 3px;
-  margin-bottom: 0px;
+  margin: 4px 0;
   color: #283c44;
+  font-weight: bold;
 }
 
 .camp-cord {
-  font-size: 0.67em;
+  font-size: 0.9em;
   color: #666;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
 }
 
+/* Pagination Styles */
 .pagination {
   margin-top: 20px;
-  color: #666
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .pagination button {
@@ -134,6 +140,12 @@ input.searchText{
   color: white;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #0056b3;
 }
 
 .pagination button:disabled {
@@ -145,6 +157,8 @@ input.searchText{
   margin: 0 10px;
   font-size: 1.2em;
 }
+
+/* Loading Bar Styles */
 .loading-container {
   text-align: center;
   margin-top: 20px;
@@ -166,4 +180,46 @@ input.searchText{
   color: white;
   line-height: 20px;
   transition: width 0.3s;
+}
+
+/* Dropdown Checkbox Styles */
+.dropdown-checkbox {
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+}
+
+.dropdown-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-button:hover {
+  background-color: #3a8b3d;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 5px;
+  z-index: 1000;
+  width: 200px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.dropdown-item input {
+  margin-right: 8px;
 }
