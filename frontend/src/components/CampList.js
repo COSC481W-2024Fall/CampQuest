@@ -216,7 +216,8 @@ return (
                 <div className="camp-info">
                   <h2 className="camp-title">{camp.campgroundName}</h2>
                   <h4 className="camp-cord">
-                    City: {camp.city} | State: {camp.state} | Type: {campgroundTypeList.find(type => type.code === camp.campgroundType)?.label || camp.campgroundType}
+                    City: {camp.city} | State: {camp.state} | Type: {campgroundTypeList[camp.campgroundType] || camp.campgroundType}
+
                   </h4>
                   <div className="camp-actions">View</div>
                 </div>

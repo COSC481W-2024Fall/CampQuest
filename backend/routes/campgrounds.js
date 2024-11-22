@@ -1,9 +1,12 @@
-    const router = require('express').Router();
-    let Campground = require('../models/campground_model');
+const express = require('express');
+const path = require('path');
 
-    //GET all campgrounds
+app.use(express.static(path.join(__dirname, 'client/build')));
 
-    // GET paginated campgrounds
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+});
+
     router.route('/').get(async (req, res) => {
         try {
             const page = parseInt(req.query.page) || 1;
@@ -20,11 +23,10 @@
         }
 
         //Uses Reg Expression to match Amenities from amenitiesFilter[] to database
-        if(amenityFilter.length > 0) {
-            const regex = amenityFilter.map(amenity => `(?=.*${amenity})`).join('');
-            query.amenities = { $regex: regex, $options: 'i'};
+        if (amenityFilter.length > 0) {
+            query.amenities = { $all: amenityFilter };
         }
-
+        
         Campground.find(query)
             .then(campgrounds => {
                 if(campgrounds.length == 0){

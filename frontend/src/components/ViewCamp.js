@@ -5,6 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 import '../DetailsPage.css';
 import ReviewList from './reviews/ReviewList';
+const similarCamps = camp && campsList.length > 0 ? findSimilar(camp, campsList) : [];
 
 const CampView = () => {
 
