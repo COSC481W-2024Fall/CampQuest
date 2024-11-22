@@ -44,7 +44,7 @@ const CampList = () => {
 
   ]
 
-  const campgroundTypeMap = {
+  const campgroundTypeList = {
     CP: 'County Park',
     COE: 'Corps of Engineers',
     NP: 'National Park',
@@ -192,7 +192,6 @@ return (
           setSearchTerm("");
           setSelectedAmenities([]);
           setSelectedTypes([]);
-          setSelectedStates([]);
           setCurrentPage(1);
           saveState('searchTerm', "");
           saveState('selectedAmenities', []);
