@@ -22,14 +22,20 @@ const CampView = () => {
       });
   }, [id]);
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/camps/$`)
+    axios.get(`${process.env.REACT_APP_API_URL}/camps`)
       .then(response => {
-        setCamp(response.data);
+        const allCamps = response.data;
+        if (camp) {
+          // Compute similarity only when `camp` is loaded
+          const sortedCamps = findSimilar(camp, allCamps);
+          setSimilarCamps(sortedCamps.slice(0, 5)); // Take top 5 similar camps
+        }
       })
-      .catch((error) => {
-        console.log('Error fetching campground', error);
+      .catch(error => {
+        console.log('Error fetching campground list:', error);
       });
-  }, );
+  }, [camp]);
+  
 
   // Mapping for amenities and types
   const amenitiesMap = {
@@ -58,6 +64,7 @@ const CampView = () => {
     RV: 'RV Park',
     BML: 'Bureau of Land Management'
   };
+  const [similarCamps, setSimilarCamps] = useState([]);
 
   // Decode amenities
   const decodedAmenities = camp?.amenities
@@ -111,29 +118,26 @@ const CampView = () => {
           </div>
 
           {/* Similar Campgrounds */}
-        <div className = "similar-campgrounds">
-          <h2> Similar Campgrounds </h2>
-          <div className = "campgrounds">
+          <div className="similar-campgrounds">
+  <h2>Similar Campgrounds</h2>
+  <div className="campgrounds">
+    {similarCamps.length > 0 ? (
+      similarCamps.map((similarCamp, index) => (
+        <Link key={index} to={`/view/${similarCamp._id}`}>
+          <div className="camping-card">{similarCamp.campgroundName}</div>
+        </Link>
+      ))
+    ) : (
+      <>
+        <div className="camping-card">Loading Camp 1</div>
+        <div className="camping-card">Loading Camp 2</div>
+        <div className="camping-card">Loading Camp 3</div>
+        <div className="camping-card">Loading Camp 4</div>
+      </>
+    )}
+  </div>
+</div>
 
-          {/*render empty similar campgrounds until similar campgrounds are found (loaded)*/}
-
-          { similarCamps[1] ?
-          (  <>
-            <Link to = {"/view/" + similarCamps[1]._id} ><div className = "camping-card">{similarCamps[1].campgroundName}</div></Link>
-            <Link to = {"/view/" + similarCamps[2]._id} ><div className = "camping-card">{similarCamps[2].campgroundName}</div></Link>
-            <Link to = {"/view/" + similarCamps[3]._id} ><div className = "camping-card">{similarCamps[3].campgroundName}</div></Link>
-            <Link to = {"/view/" + similarCamps[4]._id} ><div className = "camping-card">{similarCamps[4].campgroundName}</div></Link>
-          </>
-          ) : (
-            <>
-            <div className = "camping-card">Loading Camp 1</div>
-            <div className = "camping-card">Loading Camp 2</div>
-            <div className = "camping-card">Loading Camp 3</div>
-            <div className = "camping-card">Loading Camp 4</div>
-            </>
-          ) }
-          </div>
-        </div> 
         </> 
       ) : (
         <p>Loading camp details...</p>
