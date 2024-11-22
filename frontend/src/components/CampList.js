@@ -3,6 +3,15 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 
+const saveState = (key, value) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+const loadState = (key, defaultValue) => {
+  const saved = localStorage.getItem(key);
+  return saved ? JSON.parse(saved) : defaultValue;
+};
+
 const CampList = () => {
   const [camps, setCamp] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,7 +58,7 @@ const CampList = () => {
   const fetchCamps = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps/search`, {
         params: {
           q: searchTerm,
           amenities: selectedAmenities.join(','),
@@ -71,17 +80,41 @@ const CampList = () => {
     }
   };
 
+  // Load saved state on initial render
   useEffect(() => {
-    fetchCamps(1); // Fetch on initial load
+    const savedSearchTerm = loadState('searchTerm', "");
+    const savedAmenities = loadState('selectedAmenities', []);
+    const savedTypes = loadState('selectedTypes', []);
+    const savedPage = loadState('currentPage', 1);
+
+    setSearchTerm(savedSearchTerm);
+    setSelectedAmenities(savedAmenities);
+    setSelectedTypes(savedTypes);
+    setCurrentPage(savedPage);
+    
+    // Initial fetch with saved state
+    fetchCamps(savedPage);
   }, []);
 
-  const handleFilterChange = (value, setter) => {
-    setter(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
+  // Save state whenever key values change
+  useEffect(() => {
+    saveState('searchTerm', searchTerm);
+    saveState('selectedAmenities', selectedAmenities);
+    saveState('selectedTypes', selectedTypes);
+    saveState('currentPage', currentPage);
+  }, [searchTerm, selectedAmenities, selectedTypes, currentPage]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchCamps(1); // Reset to first page on new search
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    fetchCamps(1); // Re-fetch camps when form is submitted
+  const handleFilterChange = (value, setter) => {
+    setter(prev => 
+      prev.includes(value) 
+        ? prev.filter(item => item !== value) 
+        : [...prev, value]
+    );
   };
 
   const DropdownCheckbox = ({ label, options, selected, setSelected }) => {
@@ -89,7 +122,11 @@ const CampList = () => {
 
     return (
       <div className="dropdown-checkbox">
-        <button className="dropdown-button" onClick={() => setOpen(!open)}>
+        <button 
+          type="button" 
+          className="dropdown-button" 
+          onClick={() => setOpen(!open)}
+        >
           {label} {selected.length > 0 && `(${selected.length})`}
         </button>
         {open && (
@@ -111,9 +148,29 @@ const CampList = () => {
     );
   };
 
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedAmenities([]);
+    setSelectedTypes([]);
+    setCurrentPage(1);
+    fetchCamps(1);
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      fetchCamps(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      fetchCamps(currentPage - 1);
+    }
+  };
+
   return (
     <div className="camp-list">
-      <form onSubmit={handleFormSubmit}>
+      <form onSubmit={handleSearchSubmit}>
         <input
           className="searchText"
           type="text"
@@ -121,6 +178,10 @@ const CampList = () => {
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
+        <button type="submit">Search</button>
+      </form>
+
+      <div className="filters">
         <DropdownCheckbox
           label="Filter by Amenities"
           options={amenitiesList}
@@ -133,33 +194,35 @@ const CampList = () => {
           selected={selectedTypes}
           setSelected={setSelectedTypes}
         />
-        <button type="submit">Apply Filters</button>
-        <button
+        <button 
+          className="clear-filters" 
           type="button"
-          onClick={() => {
-            setSearchTerm("");
-            setSelectedAmenities([]);
-            setSelectedTypes([]);
-            fetchCamps(1); // Reset filters and fetch all camps
-          }}
+          onClick={clearFilters}
         >
           Clear Filters
         </button>
-      </form>
+      </div>
 
       {loading ? (
         <p>Loading camps...</p>
       ) : (
         <div className="camp-cards-container">
           {camps.length > 0 ? (
-            camps.map(camp => (
-              <Link to={`/view/${camp._id}`} key={camp._id}>
-                <div className="camp-card">
-                  <h2>{camp.campgroundName}</h2>
-                  <p>{camp.city}, {camp.state}</p>
-                </div>
-              </Link>
-            ))
+            camps.map(camp => {
+              const campType = campgroundTypeList.find(type => type.code === camp.campgroundType)?.label || camp.campgroundType;
+              return (
+                <Link to={`/view/${camp._id}`} key={camp._id}>
+                  <div className="camp-card">
+                    <div className="camp-info">
+                      <h2 className="camp-title">{camp.campgroundName}</h2>
+                      <h4 className="camp-cord">
+                        City: {camp.city} | State: {camp.state} | Type: {campType}
+                      </h4>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })
           ) : (
             <p>No camps available</p>
           )}
@@ -167,13 +230,9 @@ const CampList = () => {
       )}
 
       <div className="pagination">
-        <button onClick={() => fetchCamps(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
-        </button>
+        <button onClick={prevPage} disabled={currentPage === 1}>&lt;</button>
         <span>Page {currentPage} of {totalPages}</span>
-        <button onClick={() => fetchCamps(currentPage + 1)} disabled={currentPage === totalPages}>
-          Next
-        </button>
+        <button onClick={nextPage} disabled={currentPage === totalPages}>&gt;</button>
       </div>
     </div>
   );
