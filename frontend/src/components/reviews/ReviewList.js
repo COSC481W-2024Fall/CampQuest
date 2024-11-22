@@ -35,10 +35,10 @@ const ReviewList = ({ campgroundId }) => {
     <div className="review-list">
       {error && <p className="error-message">{error}</p>}
       <ReviewForm campgroundId={campgroundId} onReviewSubmitted={handleReviewSubmitted} />
-      {reviews.map(review => (
-        <div key={review.campgroundId} className="review">
-          <p>{review.content}</p>
-        </div>
+      {reviews?.map(review => (
+    <div key={review.campgroundId} className="review">
+      <p>{review.content}</p>
+    </div>
       ))}
       <div className="pagination">
         {[...Array(totalPages)].map((_, index) => (

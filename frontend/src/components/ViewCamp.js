@@ -95,7 +95,7 @@ const CampView = () => {
             <div className="campgrounds">
               {similarCamps.length > 0 ? (
                 similarCamps.slice(0, 4).map((similarCamp) => (
-                  <Link to={`/view/${similarCamp._id}`} key={similarCamp._id}>
+                  <Link to={`/view/${similarCamp.id}`} key={similarCamp.id}>
                     <div className="camping-card">{similarCamp.campgroundName}</div>
                   </Link>
                 ))
@@ -128,7 +128,7 @@ function findSimilar(self, others) {
     let ammenityScore = computeAmenities(self, othr);
     let similarityScore = distance + ammenityScore * 7.5;
     return {
-      _id: othr._id,
+      id: othr.id,
       campgroundName: othr.campgroundName,
       campgroundCode: othr.campgroundCode,
       longitude: othr.longitude,
