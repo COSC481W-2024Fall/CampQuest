@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
@@ -7,14 +8,10 @@ import '../DetailsPage.css';
 import ReviewList from './reviews/ReviewList';
 
 const CampView = () => {
-  console.log("hello from campview.")
-
   const { id } = useParams(); // Get the campground ID from the URL
   const [camp, setCamp] = useState(null);
   const [similar, setSimilar] = useState([]);
   const [campsList, setCampList] = useState([]);
-
-  //load camp from the database
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/camps/${id}`)
       .then(response => {
@@ -24,6 +21,16 @@ const CampView = () => {
         console.log('Error fetching campground details:', error);
       });
   }, [id]);
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API_URL}/camps/$`)
+      .then(response => {
+        setCamp(response.data);
+      })
+      .catch((error) => {
+        console.log('Error fetching campground', error);
+      });
+  }, );
+
   // Mapping for amenities and types
   const amenitiesMap = {
     E: 'Electricity',
@@ -31,7 +38,7 @@ const CampView = () => {
     DW: 'Drinking Water',
     SH: 'Showers',
     RS: 'Restrooms',
-    PA: 'Pets Aloowed',
+    PA: 'Pets Allowed',
     NP: 'No Pets',
     PT: 'Pit Toilet',
     NH: 'No Hookups',
@@ -54,12 +61,13 @@ const CampView = () => {
 
   // Decode amenities
   const decodedAmenities = camp?.amenities
-    ?.split(' ')
-    .map(code => amenitiesMap[code] || code)
-    .join(', ');
+    ?.split(' ') // Split if it's a space-separated string
+    .map(code => amenitiesMap[code] || code) // Map to readable values or fallback to code
+    .join(', ') || 'N/A'; // Join back with commas or use fallback
 
   // Decode campground type
-  const decodedType = campgroundTypeMap[camp?.campgroundType] || camp?.campgroundType;
+  const decodedType = campgroundTypeMap[camp?.campgroundType] || 'N/A';
+
   const mapContainerStyle = {
     width: '100%',
     height: '300px',
@@ -70,25 +78,9 @@ const CampView = () => {
     lng: parseFloat(camp.longitude)
   } : { lat: 0, lng: 0 }; // Fallback center
 
-  //load campgrounds from the database
-  useEffect(() => {
-    axios.get('http://localhost:5000/camps/')
-      .then(response => {
-        setCampList(response.data);
-      })
-      .catch((error) => {
-        console.log('Error fetching similar campgrounds:', error);
-      });
-  }, []);  
-
-//find similarity of all campsites
-let similarCamps = findSimilar(camp, campsList);
-
-//return html for the page
-return(
+  return (
     <div className="view-camp-container">
-      {/* wait until camp details are loaded to display the camp */}
-      {(camp)? (
+      {camp ? (
         <>
           {/* Section for Map and Camp Details */}
           <div className="map-camp-section">
@@ -106,24 +98,19 @@ return(
 
             <div className="camp-details">
               <h1>{camp.campgroundName}</h1>
-              <p><strong>Location:</strong> {camp.latitude}, {camp.longitude}</p>
-              <p><strong>City:</strong> {camp.city}</p>
-              <p><strong>State:</strong> {camp.state}</p>
-              <p><strong>Campground Type:</strong> {camp.campgroundType}</p>
-              <p><strong>Phone:</strong> {camp.phoneNumber}</p>
-              <p><strong>Number of Sites:</strong> {camp.numSites}</p>
+              <p><strong>Location:</strong> {camp.latitude || 'N/A'}, {camp.longitude || 'N/A'}</p>
+              <p><strong>City:</strong> {camp.city || 'N/A'}</p>
+              <p><strong>State:</strong> {camp.state || 'N/A'}</p>
+              <p><strong>Campground Type:</strong> {decodedType}</p>
+              <p><strong>Campground Amenities:</strong> {decodedAmenities}</p>
+              <p><strong>Phone:</strong> {camp.phoneNumber || 'N/A'}</p>
+              <p><strong>Number of Sites:</strong> {camp.numSites || 'N/A'}</p>
               <p><strong>Dates Open:</strong> {camp.datesOpen || 'N/A'}</p>
-              <Link to={"/"}>Back</Link>
+              <Link to="/">Back</Link>
             </div>
           </div>
 
-          {/* Review Section */}
-          <div className="review-section">
-            <h2>Leave a Review</h2>
-            <ReviewList campgroundId={id} />
-          </div>
-
-        {/* Similar Campgrounds */}
+          {/* Similar Campgrounds */}
         <div className = "similar-campgrounds">
           <h2> Similar Campgrounds </h2>
           <div className = "campgrounds">
@@ -156,8 +143,6 @@ return(
     );
   }
 export default CampView;
-
-
 //Find the similarity scores of all campgrounds, sort the camp list based on similarity.
 function findSimilar(self, others){
 
@@ -216,4 +201,3 @@ function findRadians(degrees)
   let rads = degrees *(Math.PI/180);
   return rads;
 }
-
