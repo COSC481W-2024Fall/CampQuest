@@ -7,10 +7,10 @@ import '../DetailsPage.css';
 import ReviewList from './reviews/ReviewList';
 
 const CampView = () => {
-  console.log("hello from campview.")
 
   const { id } = useParams(); // Get the campground ID from the URL
   const [camp, setCamp] = useState(null);
+
   const [similar, setSimilar] = useState([]);
   const [campsList, setCampList] = useState([]);
 
@@ -72,7 +72,7 @@ const CampView = () => {
 
   //load campgrounds from the database
   useEffect(() => {
-    axios.get('http://localhost:5000/camps/')
+    axios.get(`${process.env.REACT_APP_API_URL}/camps`)
       .then(response => {
         setCampList(response.data);
       })

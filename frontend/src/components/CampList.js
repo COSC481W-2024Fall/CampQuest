@@ -2,11 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
-
+const saveState = (key, value) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+const loadState = (key, defaultValue) => {
+  const saved = localStorage.getItem(key);
+  return saved ? JSON.parse(saved) : defaultValue;
+};
 const CampList = () => {
   const [camps, setCamp] = useState([]); // Initialize as an array
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");  // New state for search
+  const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -51,14 +58,15 @@ const CampList = () => {
   const fetchCamps = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps/search`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps`, {
         params: {
           q: searchTerm,
+          amenities: selectedAmenities.join(','),
+          types: selectedTypes.join(','),
           page,
           limit: campsPerPage
         }
       });
-      console.log('API response:', response.data); // Debugging line
 
       const campgrounds = Array.isArray(response.data.campgrounds) ? response.data.campgrounds : [];
       setCamp(campgrounds);
@@ -67,33 +75,37 @@ const CampList = () => {
       setLoading(false);
     } catch (error) {
       console.log('Error fetching campgrounds:', error);
-      setCamp([]); // Ensure camps is an empty array on error
+      setCamp([]);
       setLoading(false);
     }
   };
+
   
   // Fetch camps on initial load
   useEffect(() => {
-    fetchCamps();
-  }, [selectedAmenities]);
-
+    setSearchTerm(loadState('searchTerm', ""));
+    setSelectedAmenities(loadState('selectedAmenities', []));
+    setSelectedTypes(loadState('selectedTypes', []));
+    setCurrentPage(loadState('currentPage', 1));
+}, []);
+useEffect(() => {
+  fetchCamps(currentPage);
+}, [searchTerm, selectedAmenities, selectedTypes, currentPage]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchCamps(1); // Reset to first page on new search
   };
-  const handleFilterChange = (e) => {
-    const { value, checked } = e.target;
-    setSelectedAmenities((prevSelectedAmenities) => {
-      if (checked) {
-        // Add the selected amenity if it is checked
-        return [...prevSelectedAmenities, value];
-      } else {
-        // Remove the unselected amenity if it is unchecked
-        return prevSelectedAmenities.filter((amenity) => amenity !== value);
+
+  const handleFilterChange = (value, setter) => {
+    setter(prev => {
+      if (prev.includes(value)) {
+        return prev.filter(item => item !== value);
       }
+      return [...prev, value];
     });
   };
+
 
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -106,77 +118,132 @@ const CampList = () => {
       fetchCamps(currentPage - 1);
     }
   };
+  useEffect(() => {
+    saveState('searchTerm', searchTerm);
+    saveState('selectedAmenities', selectedAmenities);
+    saveState('selectedTypes', selectedTypes);
+    saveState('currentPage', currentPage);
+}, [searchTerm, selectedAmenities, selectedTypes, currentPage]);
 
+const DropdownCheckbox = ({ label, options, selected, setSelected }) => {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="camp-list">
-      <form onSubmit={handleSearchSubmit}>
-        <input
-          className="searchText"
-          type="text"
-          placeholder="Search camps by name..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-        />
-        <button type="submit">Search</button>
-      </form>
+    <div className="dropdown-checkbox">
+      <button
+        className="dropdown-button"
+        onClick={() => setOpen(!open)}
+      >
+        {label} {selected.length > 0 && `(${selected.length})`}
+      </button>
+      {open && (
+        <div 
+          className="dropdown-menu" 
+          onBlur={() => setOpen(false)}
+          tabIndex={0}
+        >
+          {options.map(option => (
+            <label key={option.code} className="dropdown-item">
+              <input
+                type="checkbox"
+                value={option.code}
+                checked={selected.includes(option.code)}
+                onChange={() => handleFilterChange(option.code, setSelected)}
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
-      {/*  Amenity Filters */}
-      <div className="amenities-filter">
-        <h4>Filter By Amenities</h4>
-        {amenitiesList.map((amenity) => (
-          <label key ={amenity.code}>
-            <input 
-            type = "checkbox"
-            value = {amenity.code}
-            checked = {selectedAmenities.includes(amenity.code)}
-            onChange = {handleFilterChange} 
-            />
-            {amenity.label}
-          </label>
-        ))}
-      </div>
-
-      {/* Search input */}
-      <input className="searchText"
+return (
+  <div className="camp-list">
+    {/* Search Input */}
+    <form onSubmit={e => { e.preventDefault(); fetchCamps(1); }}>
+      <input
+        className="searchText"
         type="text"
         placeholder="Search camps by name..."
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
       />
-      
-    
-      {loading ? (
-        <p>Loading camps...</p>
-      ) : (
-        <div className="camp-cards-container">
-          {camps.length > 0 ? (
-            camps.map(camp => {
-              const decodedType = campgroundTypeMap[camp.campgroundType] || camp.campgroundType;
-              return (
-                <Link to={"/view/" + camp._id} key={camp._id}>
-                  <div className="camp-card">
-                    <div className="camp-info">
-                      <h2 className="camp-title">{camp.campgroundName}</h2>
-                      <h4 className="camp-cord">City: {camp.city} | State: {camp.state} | Type: {decodedType}</h4>
-                      <div className="camp-actions">View</div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })
-          ) : (
-            <p>No camps available</p>
-          )}
-        </div>
-      )}
+      <button type="submit">Search</button>
+    </form>
 
-      <div className="pagination">
-        <button onClick={prevPage} disabled={currentPage === 1}>&lt;</button>
-        <span> Page {currentPage} of {totalPages} </span>
-        <button onClick={nextPage} disabled={currentPage === totalPages}>&gt;</button>
-      </div>
+    {/* Filters */}
+    <div className="filters">
+      <DropdownCheckbox
+        label="Filter by Amenities"
+        options={amenitiesList}
+        selected={selectedAmenities}
+        setSelected={setSelectedAmenities}
+      />
+      <DropdownCheckbox
+        label="Filter by Campground Types"
+        options={campgroundTypeList}
+        selected={selectedTypes}
+        setSelected={setSelectedTypes}
+      />
+      <button
+        className="clear-filters"
+        onClick={() => {
+          setSearchTerm("");
+          setSelectedAmenities([]);
+          setSelectedTypes([]);
+          setSelectedStates([]);
+          setCurrentPage(1);
+          saveState('searchTerm', "");
+          saveState('selectedAmenities', []);
+          saveState('selectedTypes', []);
+          saveState('selectedStates', []);
+          fetchCamps(1);
+        }}
+      >
+        Clear Filters
+      </button>
     </div>
-  );
+    <br />
+
+    {loading ? (
+      <p>Loading camps...</p>
+    ) : (
+      <div className="camp-cards-container">
+        {camps.length > 0 ? (
+          camps.map(camp => (
+            <Link to={`/view/${camp._id}`} key={camp._id}>
+              <div className="camp-card">
+                <div className="camp-info">
+                  <h2 className="camp-title">{camp.campgroundName}</h2>
+                  <h4 className="camp-cord">
+                    City: {camp.city} | State: {camp.state} | Type: {campgroundTypeList.find(type => type.code === camp.campgroundType)?.label || camp.campgroundType}
+                  </h4>
+                  <div className="camp-actions">View</div>
+                </div>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p>No camps available</p>
+        )}
+      </div>
+    )}
+
+    {/* Pagination */}
+    <div className="pagination">
+      <button onClick={prevPage} disabled={currentPage === 1}>
+        &lt;
+      </button>
+      <span>
+        Page {currentPage} of {totalPages}
+      </span>
+      <button onClick={nextPage} disabled={currentPage === totalPages}>
+        &gt;
+      </button>
+    </div>
+  </div>
+);
 };
 
 export default CampList;
