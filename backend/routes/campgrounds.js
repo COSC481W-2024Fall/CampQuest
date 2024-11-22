@@ -14,13 +14,14 @@ router.route('/').get(async (req, res) => {
   
       if (amenitiesFilter.length > 0) {
         query.amenities = {
-          $in: amenitiesFilter.map((amenity) => new RegExp(amenity, 'i')),
+          $all: amenitiesFilter.map((amenity) => new RegExp(amenity, 'i')), // Ensure matches all selected
         };
       }
-  
+      
       if (typesFilter.length > 0) {
         query.campgroundType = { $in: typesFilter };
       }
+      
   
       if (statesFilter.length > 0) {
         query.state = { $in: statesFilter };

@@ -58,16 +58,14 @@ const CampList = () => {
   const fetchCamps = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps/search`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps`, {
         params: {
-          q: searchTerm,
           amenities: selectedAmenities.join(','),
           types: selectedTypes.join(','),
           page,
           limit: campsPerPage
         }
       });
-
       const campgrounds = Array.isArray(response.data.campgrounds) ? response.data.campgrounds : [];
       setCamp(campgrounds);
       setTotalPages(response.data.totalPages || 1);
@@ -79,6 +77,7 @@ const CampList = () => {
       setLoading(false);
     }
   };
+  
 
   // Load saved state on initial render
   useEffect(() => {
