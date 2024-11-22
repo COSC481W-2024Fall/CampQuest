@@ -1,17 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 import '../DetailsPage.css';
-import ReviewList from './reviews/ReviewList';
 
 const CampView = () => {
   const { id } = useParams(); // Get the campground ID from the URL
   const [camp, setCamp] = useState(null);
-  const [similar, setSimilar] = useState([]);
-  const [campsList, setCampList] = useState([]);
+
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/camps/${id}`)
       .then(response => {
@@ -21,21 +18,6 @@ const CampView = () => {
         console.log('Error fetching campground details:', error);
       });
   }, [id]);
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/camps`)
-      .then(response => {
-        const allCamps = response.data;
-        if (camp) {
-          // Compute similarity only when `camp` is loaded
-          const sortedCamps = findSimilar(camp, allCamps);
-          setSimilarCamps(sortedCamps.slice(0, 5)); // Take top 5 similar camps
-        }
-      })
-      .catch(error => {
-        console.log('Error fetching campground list:', error);
-      });
-  }, [camp]);
-  
 
   // Mapping for amenities and types
   const amenitiesMap = {
@@ -64,7 +46,6 @@ const CampView = () => {
     RV: 'RV Park',
     BML: 'Bureau of Land Management'
   };
-  const [similarCamps, setSimilarCamps] = useState([]);
 
   // Decode amenities
   const decodedAmenities = camp?.amenities
@@ -117,91 +98,29 @@ const CampView = () => {
             </div>
           </div>
 
+          {/* Review Section */}
+          <div className="review-section">
+            <h2>Leave a Review</h2>
+            <textarea placeholder="Leave a review..." />
+            <button>Submit</button>
+          </div>
+
           {/* Similar Campgrounds */}
           <div className="similar-campgrounds">
-  <h2>Similar Campgrounds</h2>
-  <div className="campgrounds">
-    {similarCamps.length > 0 ? (
-      similarCamps.map((similarCamp, index) => (
-        <Link key={index} to={`/view/${similarCamp._id}`}>
-          <div className="camping-card">{similarCamp.campgroundName}</div>
-        </Link>
-      ))
-    ) : (
-      <>
-        <div className="camping-card">Loading Camp 1</div>
-        <div className="camping-card">Loading Camp 2</div>
-        <div className="camping-card">Loading Camp 3</div>
-        <div className="camping-card">Loading Camp 4</div>
-      </>
-    )}
-  </div>
-</div>
-
-        </> 
+            <h2>Similar Campgrounds</h2>
+            <div className="campgrounds">
+              <div className="camping-card">Campground 1</div>
+              <div className="camping-card">Campground 2</div>
+              <div className="camping-card">Campground 3</div>
+              <div className="camping-card">Campground 4</div>
+            </div>
+          </div>
+        </>
       ) : (
         <p>Loading camp details...</p>
       )}
-      
     </div>
-    );
-  }
+  );
+};
+
 export default CampView;
-//Find the similarity scores of all campgrounds, sort the camp list based on similarity.
-function findSimilar(self, others){
-
-  //map similarity onto the camp list
-  let campSimilarity =  others.map( othr=> {
-    //find distance between two camps
-    let distance = computeDistance(self.latitude, self.longitude, othr.latitude, othr.longitude);
-    let ammenityScore = computeAmmenities(self, othr)
-    let similarScore = distance + ammenityScore*7.5
-    return {_id: othr._id, campgroundName: othr.campgroundName, campgroundCode: othr.campgroundCode,longitude: 
-      othr.longitude, latitude: othr.latitude, phoneNumber: othr.phoneNumber, campgroundType: othr.campgroundType,
-      numSites: othr.numSites, datesOpen: othr.datesOpen, similarity: similarScore}
-  });
-  //then sort the camp list by similarity
-  campSimilarity.sort((a, b) => a.similarity - b.similarity);
-  return campSimilarity
-}
-
-
-//find ammenities score based on number of missing ammenities.
-function computeAmmenities(self, other){
-  let score = 0
-  let campAmmenities = self.amenities.split(" ")
-
-  if( other.amenities){
-    let otherAmmenites = other.amenities.split(" ")
-    let ammenityFound = false;
-
-    for(let i = 0; i < campAmmenities.length; i++){
-      ammenityFound = false;
-      let ammenity = campAmmenities[i]
-      for(let j =0; j < otherAmmenites.length; j++){
-        if (ammenity == otherAmmenites[j]){
-          ammenityFound = true
-        }
-      }
-      if (!ammenityFound){
-        score +=1
-      }
-    }
-  }
-
-  return score;
-}
-
-//compute the distance between two georaphical points.
-function computeDistance(latCurr, longCurr, latCamp, longCamp){
-  let dist= Math.acos((Math.sin(findRadians(latCurr)) * Math.sin(findRadians(latCamp))) + (Math.cos(findRadians(latCurr)) * Math.cos(findRadians(latCamp))) * (Math.cos(findRadians(longCamp) - findRadians(longCurr)))) * 6371
-  return dist
-}
-
-
-// convert degrees to radians.
-function findRadians(degrees)
-{
-  let rads = degrees *(Math.PI/180);
-  return rads;
-}
