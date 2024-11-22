@@ -167,3 +167,39 @@ input.searchText{
   line-height: 20px;
   transition: width 0.3s;
 }
+.dropdown-checkbox {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.dropdown-button {
+  background-color: #f4f4f4;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+  border-radius: 4px;
+}
+
+.dropdown-item {
+  display: flex;
+  padding: 5px;
+}
+
+.dropdown-item input {
+  margin-right: 8px;
+  
+}
