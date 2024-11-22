@@ -47,9 +47,10 @@ const CampView = () => {
   };
 
   // Center of the map, fallback if no camp data
-  const center = camp
-    ? { lat: parseFloat(camp.latitude), lng: parseFloat(camp.longitude) }
-    : { lat: 0, lng: 0 };
+  const center = camp?.latitude && camp?.longitude
+  ? { lat: parseFloat(camp.latitude), lng: parseFloat(camp.longitude) }
+  : { lat: 0, lng: 0 };
+
 
   return (
     <div className="view-camp-container">

@@ -36,7 +36,7 @@ const ReviewList = ({ campgroundId }) => {
       {error && <p className="error-message">{error}</p>}
       <ReviewForm campgroundId={campgroundId} onReviewSubmitted={handleReviewSubmitted} />
       {reviews.map(review => (
-        <div key={review._id} className="review">
+        <div key={review.campgroundId} className="review">
           <p>{review.content}</p>
         </div>
       ))}
