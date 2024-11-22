@@ -10,7 +10,7 @@ const ReviewList = ({ campgroundId }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/camps/${campgroundId}/reviews?page=${currentPage}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/camps/${campgroundId}/reviews?page=${currentPage}`)
       .then(response => {
         setReviews(response.data.reviews);
         setTotalPages(response.data.totalPages);
@@ -23,7 +23,7 @@ const ReviewList = ({ campgroundId }) => {
   };
 
   const handleReviewSubmitted = () => {
-    axios.get(`http://localhost:5000/camps/${campgroundId}/reviews?page=${currentPage}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/camps/${campgroundId}/reviews?page=${currentPage}`)
     .then(response => {
       setReviews(response.data.reviews);
       setTotalPages(response.data.totalPages);

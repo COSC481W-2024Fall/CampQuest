@@ -10,7 +10,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
     e.preventDefault();
     setError('');
 
-    axios.post(`http://localhost:5000/camps/${campgroundId}/reviews`, { content: reviewText })
+    axios.post(`${process.env.REACT_APP_API_URL}/camps/${campgroundId}/reviews`, { content: reviewText })
     .then(() => {
       onReviewSubmitted();
       setReviewText('');
