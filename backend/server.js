@@ -1,6 +1,6 @@
 const app = require("./app");
 const mongoose = require('mongoose');
-const port = process.env.PORT || 5000;  // Changed to 5001
+const port = process.env.PORT || 10000;  // Changed to 5001
 
 // Connect to MongoDB
 const uri = process.env.MONGO_URI;
