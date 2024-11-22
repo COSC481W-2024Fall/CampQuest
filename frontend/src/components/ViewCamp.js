@@ -9,36 +9,30 @@ import ReviewList from './reviews/ReviewList';
 const CampView = () => {
   const { id } = useParams();
   const [camp, setCamp] = useState(null);
-  const [similarCamps, setSimilarCamps] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [similarCamps, setSimilarCamps] = useState([]); // Added missing state
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch camp details and similar camps
+  // Fetch current camp
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Fetch current camp details
-        const campResponse = await axios.get(`${process.env.REACT_APP_API_URL}/camps/${id}`);
-        setCamp(campResponse.data);
-
+    setIsLoading(true);
+    axios.get(`${process.env.REACT_APP_API_URL}/camps/${id}`)
+      .then(response => {
+        setCamp(response.data);
         // Fetch all camps for similarity comparison
-        const allCampsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/camps`);
-        const otherCamps = allCampsResponse.data.filter(c => c._id !== id);
-        
-        // Find similar camps if we have the current camp data
-        if (campResponse.data) {
-          const similar = findSimilar(campResponse.data, otherCamps);
-          // Get top 4 similar camps
-          setSimilarCamps(similar.slice(0, 4));
-        }
-      } catch (error) {
+        return axios.get(`${process.env.REACT_APP_API_URL}/camps`);
+      })
+      .then(response => {
+        // Filter out the current camp and find similar ones
+        const otherCamps = response.data.filter(c => c._id !== id);
+        const similar = findSimilar(camp, otherCamps);
+        // Get the top 4 similar camps
+        setSimilarCamps(similar.slice(0, 4));
+        setIsLoading(false);
+      })
+      .catch((error) => {
         console.log('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+        setIsLoading(false);
+      });
   }, [id]);
 
   // Mapping for amenities and types
@@ -90,11 +84,8 @@ const CampView = () => {
 
   return (
     <div className="view-camp-container">
-      {loading ? (
-        <p>Loading camp details...</p>
-      ) : (
+      {camp ? (
         <>
-          {/* Section for Map and Camp Details */}
           <div className="map-camp-section">
             <div className="map-container">
               <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
@@ -109,24 +100,23 @@ const CampView = () => {
             </div>
 
             <div className="camp-details">
-              <h1>{camp?.campgroundName}</h1>
-              <p><strong>Location:</strong> {camp?.latitude || 'N/A'}, {camp?.longitude || 'N/A'}</p>
-              <p><strong>City:</strong> {camp?.city || 'N/A'}</p>
-              <p><strong>State:</strong> {camp?.state || 'N/A'}</p>
+              <h1>{camp.campgroundName}</h1>
+              <p><strong>Location:</strong> {camp.latitude || 'N/A'}, {camp.longitude || 'N/A'}</p>
+              <p><strong>City:</strong> {camp.city || 'N/A'}</p>
+              <p><strong>State:</strong> {camp.state || 'N/A'}</p>
               <p><strong>Campground Type:</strong> {decodedType}</p>
               <p><strong>Campground Amenities:</strong> {decodedAmenities}</p>
-              <p><strong>Phone:</strong> {camp?.phoneNumber || 'N/A'}</p>
-              <p><strong>Number of Sites:</strong> {camp?.numSites || 'N/A'}</p>
-              <p><strong>Dates Open:</strong> {camp?.datesOpen || 'N/A'}</p>
+              <p><strong>Phone:</strong> {camp.phoneNumber || 'N/A'}</p>
+              <p><strong>Number of Sites:</strong> {camp.numSites || 'N/A'}</p>
+              <p><strong>Dates Open:</strong> {camp.datesOpen || 'N/A'}</p>
               <Link to="/">Back</Link>
             </div>
           </div>
 
-          {/* Similar Campgrounds */}
           <div className="similar-campgrounds">
             <h2>Similar Campgrounds</h2>
             <div className="campgrounds">
-              {similarCamps.length > 0 ? (
+              {!isLoading && similarCamps.length > 0 ? (
                 similarCamps.map(camp => (
                   <Link key={camp._id} to={`/view/${camp._id}`}>
                     <div className="camping-card">{camp.campgroundName}</div>
@@ -143,6 +133,8 @@ const CampView = () => {
             </div>
           </div>
         </>
+      ) : (
+        <p>Loading camp details...</p>
       )}
     </div>
   );
