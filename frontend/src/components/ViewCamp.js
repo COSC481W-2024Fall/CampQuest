@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
@@ -8,28 +7,39 @@ import '../DetailsPage.css';
 import ReviewList from './reviews/ReviewList';
 
 const CampView = () => {
-  const { id } = useParams(); // Get the campground ID from the URL
+  const { id } = useParams();
   const [camp, setCamp] = useState(null);
-  const [similar, setSimilar] = useState([]);
-  const [campsList, setCampList] = useState([]);
+  const [similarCamps, setSimilarCamps] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch camp details and similar camps
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/camps/${id}`)
-      .then(response => {
-        setCamp(response.data);
-      })
-      .catch((error) => {
-        console.log('Error fetching campground details:', error);
-      });
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch current camp details
+        const campResponse = await axios.get(`${process.env.REACT_APP_API_URL}/camps/${id}`);
+        setCamp(campResponse.data);
+
+        // Fetch all camps for similarity comparison
+        const allCampsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/camps`);
+        const otherCamps = allCampsResponse.data.filter(c => c._id !== id);
+        
+        // Find similar camps if we have the current camp data
+        if (campResponse.data) {
+          const similar = findSimilar(campResponse.data, otherCamps);
+          // Get top 4 similar camps
+          setSimilarCamps(similar.slice(0, 4));
+        }
+      } catch (error) {
+        console.log('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/camps/$`)
-      .then(response => {
-        setCamp(response.data);
-      })
-      .catch((error) => {
-        console.log('Error fetching campground', error);
-      });
-  }, );
 
   // Mapping for amenities and types
   const amenitiesMap = {
@@ -42,7 +52,7 @@ const CampView = () => {
     NP: 'No Pets',
     PT: 'Pit Toilet',
     NH: 'No Hookups',
-    L$: 'Free or under $12',
+    'L$': 'Free or under $12',
     ND: 'No Dump Station',
     WE: 'Water Electricity',
     WES: 'Water Electricity Sewer'
@@ -61,9 +71,9 @@ const CampView = () => {
 
   // Decode amenities
   const decodedAmenities = camp?.amenities
-    ?.split(' ') // Split if it's a space-separated string
-    .map(code => amenitiesMap[code] || code) // Map to readable values or fallback to code
-    .join(', ') || 'N/A'; // Join back with commas or use fallback
+    ?.split(' ')
+    .map(code => amenitiesMap[code] || code)
+    .join(', ') || 'N/A';
 
   // Decode campground type
   const decodedType = campgroundTypeMap[camp?.campgroundType] || 'N/A';
@@ -76,11 +86,13 @@ const CampView = () => {
   const center = camp ? {
     lat: parseFloat(camp.latitude),
     lng: parseFloat(camp.longitude)
-  } : { lat: 0, lng: 0 }; // Fallback center
+  } : { lat: 0, lng: 0 };
 
   return (
     <div className="view-camp-container">
-      {camp ? (
+      {loading ? (
+        <p>Loading camp details...</p>
+      ) : (
         <>
           {/* Section for Map and Camp Details */}
           <div className="map-camp-section">
@@ -97,107 +109,43 @@ const CampView = () => {
             </div>
 
             <div className="camp-details">
-              <h1>{camp.campgroundName}</h1>
-              <p><strong>Location:</strong> {camp.latitude || 'N/A'}, {camp.longitude || 'N/A'}</p>
-              <p><strong>City:</strong> {camp.city || 'N/A'}</p>
-              <p><strong>State:</strong> {camp.state || 'N/A'}</p>
+              <h1>{camp?.campgroundName}</h1>
+              <p><strong>Location:</strong> {camp?.latitude || 'N/A'}, {camp?.longitude || 'N/A'}</p>
+              <p><strong>City:</strong> {camp?.city || 'N/A'}</p>
+              <p><strong>State:</strong> {camp?.state || 'N/A'}</p>
               <p><strong>Campground Type:</strong> {decodedType}</p>
               <p><strong>Campground Amenities:</strong> {decodedAmenities}</p>
-              <p><strong>Phone:</strong> {camp.phoneNumber || 'N/A'}</p>
-              <p><strong>Number of Sites:</strong> {camp.numSites || 'N/A'}</p>
-              <p><strong>Dates Open:</strong> {camp.datesOpen || 'N/A'}</p>
+              <p><strong>Phone:</strong> {camp?.phoneNumber || 'N/A'}</p>
+              <p><strong>Number of Sites:</strong> {camp?.numSites || 'N/A'}</p>
+              <p><strong>Dates Open:</strong> {camp?.datesOpen || 'N/A'}</p>
               <Link to="/">Back</Link>
             </div>
           </div>
 
           {/* Similar Campgrounds */}
-        <div className = "similar-campgrounds">
-          <h2> Similar Campgrounds </h2>
-          <div className = "campgrounds">
-
-          {/*render empty similar campgrounds until similar campgrounds are found (loaded)*/}
-
-          { similarCamps[1] ?
-          (  <>
-            <Link to = {"/view/" + similarCamps[1]._id} ><div className = "camping-card">{similarCamps[1].campgroundName}</div></Link>
-            <Link to = {"/view/" + similarCamps[2]._id} ><div className = "camping-card">{similarCamps[2].campgroundName}</div></Link>
-            <Link to = {"/view/" + similarCamps[3]._id} ><div className = "camping-card">{similarCamps[3].campgroundName}</div></Link>
-            <Link to = {"/view/" + similarCamps[4]._id} ><div className = "camping-card">{similarCamps[4].campgroundName}</div></Link>
-          </>
-          ) : (
-            <>
-            <div className = "camping-card">Loading Camp 1</div>
-            <div className = "camping-card">Loading Camp 2</div>
-            <div className = "camping-card">Loading Camp 3</div>
-            <div className = "camping-card">Loading Camp 4</div>
-            </>
-          ) }
+          <div className="similar-campgrounds">
+            <h2>Similar Campgrounds</h2>
+            <div className="campgrounds">
+              {similarCamps.length > 0 ? (
+                similarCamps.map(camp => (
+                  <Link key={camp._id} to={`/view/${camp._id}`}>
+                    <div className="camping-card">{camp.campgroundName}</div>
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <div className="camping-card">Loading Camp 1</div>
+                  <div className="camping-card">Loading Camp 2</div>
+                  <div className="camping-card">Loading Camp 3</div>
+                  <div className="camping-card">Loading Camp 4</div>
+                </>
+              )}
+            </div>
           </div>
-        </div> 
-        </> 
-      ) : (
-        <p>Loading camp details...</p>
+        </>
       )}
-      
     </div>
-    );
-  }
+  );
+};
+
 export default CampView;
-//Find the similarity scores of all campgrounds, sort the camp list based on similarity.
-function findSimilar(self, others){
-
-  //map similarity onto the camp list
-  let campSimilarity =  others.map( othr=> {
-    //find distance between two camps
-    let distance = computeDistance(self.latitude, self.longitude, othr.latitude, othr.longitude);
-    let ammenityScore = computeAmmenities(self, othr)
-    let similarScore = distance + ammenityScore*7.5
-    return {_id: othr._id, campgroundName: othr.campgroundName, campgroundCode: othr.campgroundCode,longitude: 
-      othr.longitude, latitude: othr.latitude, phoneNumber: othr.phoneNumber, campgroundType: othr.campgroundType,
-      numSites: othr.numSites, datesOpen: othr.datesOpen, similarity: similarScore}
-  });
-  //then sort the camp list by similarity
-  campSimilarity.sort((a, b) => a.similarity - b.similarity);
-  return campSimilarity
-}
-
-
-//find ammenities score based on number of missing ammenities.
-function computeAmmenities(self, other){
-  let score = 0
-  let campAmmenities = self.amenities.split(" ")
-
-  if( other.amenities){
-    let otherAmmenites = other.amenities.split(" ")
-    let ammenityFound = false;
-
-    for(let i = 0; i < campAmmenities.length; i++){
-      ammenityFound = false;
-      let ammenity = campAmmenities[i]
-      for(let j =0; j < otherAmmenites.length; j++){
-        if (ammenity == otherAmmenites[j]){
-          ammenityFound = true
-        }
-      }
-      if (!ammenityFound){
-        score +=1
-      }
-    }
-  }
-
-  return score;
-}
-
-//compute the distance between two georaphical points.
-function computeDistance(latCurr, longCurr, latCamp, longCamp){
-  let dist= Math.acos((Math.sin(findRadians(latCurr)) * Math.sin(findRadians(latCamp))) + (Math.cos(findRadians(latCurr)) * Math.cos(findRadians(latCamp))) * (Math.cos(findRadians(longCamp) - findRadians(longCurr)))) * 6371
-  return dist
-}
-
-
-// convert degrees to radians.
-function findRadians(degrees)
-{
-  let rads = degrees *(Math.PI/180);
-  return rads;
-}
