@@ -16,19 +16,52 @@ const CampList = () => {
   const [camps, setCamp] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(loadState('searchTerm', ""));
-  const [submittedSearchTerm, setSubmittedSearchTerm] = useState("");
-  const [selectedAmenities, setSelectedAmenities] = useState(loadState('selectedAmenities', []));
-  const [selectedTypes, setSelectedTypes] = useState(loadState('selectedTypes', []));
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [selectedTypes, setSelectedTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const campsPerPage = 12;
 
-  const fetchCamps = async (page = 1, search = "") => {
+
+  const campgroundTypeList = [
+    { code: 'CP', label: 'County Park' },
+    { code: 'COE', label: 'Corps of Engineers' },
+    { code: 'NP', label: 'National Park' },
+    { code: 'NF', label: 'National Forest' },
+    { code: 'SP', label: 'State Park' },
+    { code: 'PP', label: 'Provincial Park' },
+    { code: 'RV', label: 'RV Park' },
+    { code: 'BML', label: 'Bureau of Land Management' }
+  ];
+
+  const amenitiesList = [
+    { code: 'NH', label: 'No Hookups' },
+    { code: 'E', label: 'Electric' },
+    { code: 'WE', label: 'Water & Electric' },
+    { code: 'WES', label: 'Water, Electric & Sewer' },
+    { code: 'DP', label: 'Dump' },
+    { code: 'ND', label: 'No Dump' },
+    { code: 'FT', label: 'Flush Toilets' },
+    { code: 'VT', label: 'Vault Toilets' },
+    { code: 'PT', label: 'Pit Toilets' },
+    { code: 'NT', label: 'No Toilets' },
+    { code: 'DW', label: 'Drinking Water' },
+    { code: 'NW', label: 'No Drinking Water' },
+    { code: 'SH', label: 'Showers' },
+    { code: 'NS', label: 'No Showers' },
+    { code: 'RS', label: 'Accepts Reservations' },
+    { code: 'NR', label: 'No Reservations' },
+    { code: 'PA', label: 'Pets Allowed' },
+    { code: 'NP', label: 'No Pets Allowed' },
+    { code: 'L$', label: 'Free or Under $12' }
+  ];
+
+  const fetchCamps = async (page = 1) => {
     setLoading(true);
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps`, {
         params: {
-          q: search,
+          q: searchTerm,
           amenities: selectedAmenities.join(','),
           types: selectedTypes.join(','),
           page,
@@ -40,56 +73,73 @@ const CampList = () => {
       setCamp(campgrounds);
       setTotalPages(response.data.totalPages || 1);
       setCurrentPage(page);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching campgrounds:', error);
       setCamp([]);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCamps(currentPage, submittedSearchTerm);
-  }, [currentPage, submittedSearchTerm, selectedAmenities, selectedTypes]);
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setSubmittedSearchTerm(searchTerm);
-    setCurrentPage(1);
-    saveState('searchTerm', searchTerm);
-  };
-
-  const handleFilterChange = (value, setter) => {
-    setter(prev => {
-      if (prev.includes(value)) {
-        return prev.filter(item => item !== value);
-      }
-      return [...prev, value];
-    });
-  };
-
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+    setSearchTerm(loadState('searchTerm', ""));
+    setSelectedAmenities(loadState('selectedAmenities', []));
+    setSelectedTypes(loadState('selectedTypes', []));
+    setCurrentPage(loadState('currentPage', 1));
+  }, []);
 
   useEffect(() => {
+    fetchCamps(currentPage);
+  }, [searchTerm, selectedAmenities, selectedTypes, currentPage]);
+
+  useEffect(() => {
+    saveState('searchTerm', searchTerm);
     saveState('selectedAmenities', selectedAmenities);
     saveState('selectedTypes', selectedTypes);
     saveState('currentPage', currentPage);
-  }, [selectedAmenities, selectedTypes, currentPage]);
+  }, [searchTerm, selectedAmenities, selectedTypes, currentPage]);
+
+  const handleFilterChange = (value, setter) => {
+    setter(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
+  };
+
+  const changePage = (direction) => {
+    const newPage = currentPage + direction;
+    if (newPage > 0 && newPage <= totalPages) {
+      fetchCamps(newPage);
+    }
+  };
+
+  const DropdownCheckbox = ({ label, options, selected, setSelected }) => {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <div className="dropdown-checkbox">
+        <button className="dropdown-button" onClick={() => setOpen(!open)}>
+          {label} {selected.length > 0 && `(${selected.length})`}
+        </button>
+        {open && (
+          <div className="dropdown-menu" onBlur={() => setOpen(false)} tabIndex={0}>
+            {options.map(option => (
+              <label key={option.code} className="dropdown-item">
+                <input
+                  type="checkbox"
+                  value={option.code}
+                  checked={selected.includes(option.code)}
+                  onChange={() => handleFilterChange(option.code, setSelected)}
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="camp-list">
-      {/* Search Input */}
-      <form onSubmit={handleSearchSubmit}>
+      <form onSubmit={e => { e.preventDefault(); fetchCamps(1); }}>
         <input
           className="searchText"
           type="text"
@@ -99,28 +149,37 @@ const CampList = () => {
         />
         <button type="submit">Search</button>
       </form>
-  
-      {/* Filters */}
+
       <div className="filters">
-        {/* Add DropdownCheckbox components for filters */}
+        <DropdownCheckbox
+          label="Filter by Amenities"
+          options={amenitiesList}
+          selected={selectedAmenities}
+          setSelected={setSelectedAmenities}
+        />
+        <DropdownCheckbox
+          label="Filter by Campground Types"
+          options={campgroundTypeList}
+          selected={selectedTypes}
+          setSelected={setSelectedTypes}
+        />
         <button
           className="clear-filters"
           onClick={() => {
             setSearchTerm("");
-            setSubmittedSearchTerm("");
             setSelectedAmenities([]);
             setSelectedTypes([]);
             setCurrentPage(1);
             saveState('searchTerm', "");
             saveState('selectedAmenities', []);
             saveState('selectedTypes', []);
-            fetchCamps(1, "");
+            fetchCamps(1);
           }}
         >
           Clear Filters
         </button>
       </div>
-  
+
       {loading ? (
         <p>Loading camps...</p>
       ) : (
@@ -132,9 +191,8 @@ const CampList = () => {
                   <div className="camp-info">
                     <h2 className="camp-title">{camp.campgroundName}</h2>
                     <h4 className="camp-cord">
-                      City: {camp.city} | State: {camp.state}
+                      City: {camp.city} | State: {camp.state} | Type: {campgroundTypeList.find(type => type.code === camp.campgroundType)?.label || camp.campgroundType}
                     </h4>
-                    <div className="camp-actions">View</div>
                   </div>
                 </div>
               </Link>
@@ -144,16 +202,13 @@ const CampList = () => {
           )}
         </div>
       )}
-  
-      {/* Pagination */}
+
       <div className="pagination">
-        <button onClick={prevPage} disabled={currentPage === 1}>
+        <button onClick={() => changePage(-1)} disabled={currentPage === 1}>
           &lt;
         </button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        <button onClick={nextPage} disabled={currentPage === totalPages}>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button onClick={() => changePage(1)} disabled={currentPage === totalPages}>
           &gt;
         </button>
       </div>
