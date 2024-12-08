@@ -40,14 +40,34 @@ const CampView = () => {
   };
 
   const campgroundTypeMap = {
+    0: 'Private Land',
+    PR: 'Private Recreation Area',
     CP: 'County Park',
     COE: 'Corps of Engineers',
     NP: 'National Park',
     NF: 'National Forest',
-    SP: 'State Park',
-    PP: 'Provincial Park',
+    NWR: 'National Wildlife Refuge Campground',
+    NM: 'National Monument Park',
+    NRA: 'National Recreation Area',
+    NS: 'National Seashore Park',
+    SP: 'State Park Campground',
+    SB: 'State Beach Campground',
+    SF: 'State Forest Park',
+    SRA: 'State Recreation Area',
+    SR: 'State Reserve Land',
+    SPA: 'State Preservation Area',
+    SRVA: 'State Recreation and Vehicle Area',
+    TVA: 'Tennessee Valley Authority',
+    AMC: 'Appalachian Mountain Club Campground',
     RV: 'RV Park',
-    BML: 'Bureau of Land Management',
+    RES: 'Reservoir Recreation Area',
+    BLM: 'Bureau of Land Management',
+    BOR: 'Bureau of Reclamation Land',
+    MIL: 'Military Recreation Campground',
+    SCA: 'Scenic Area Campground',
+    UTIL: 'Utility-Managed Campground',
+    USFW: 'U.S. Fish and Wildlife Service Park',
+    SFW: 'State Fish and Wildlife Park',
   };
 
   const statesMap = {
@@ -142,9 +162,9 @@ const CampView = () => {
 
   const center = camp
     ? {
-        lat: parseFloat(camp.latitude),
-        lng: parseFloat(camp.longitude),
-      }
+      lat: parseFloat(camp.latitude),
+      lng: parseFloat(camp.longitude),
+    }
     : { lat: 0, lng: 0 };
 
   return (
