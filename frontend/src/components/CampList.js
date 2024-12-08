@@ -14,6 +14,7 @@ const loadState = (key, defaultValue) => {
 
 const CampList = () => {
   const [camps, setCamp] = useState([]);
+  const [campImages, setCampImages] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -126,6 +127,24 @@ const CampList = () => {
     }
   }
 
+  const fetchCampImage = async (camp) => {
+    if (camp.imageUrl) {
+      return camp.imageUrl; // Use existing URL if available
+    }
+  
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/camps/image`, {
+        params: { query: `${camp.campgroundName}, ${camp.state} campground` },
+      });
+  
+      return response.data.imageUrl || null;
+    } catch (error) {
+      console.error('Error fetching camp image:', error.response ? error.response.data : error.message);
+      return null;
+    }
+  };
+    
+  // In your fetchCamps method, update the image fetching logic
   const fetchCamps = async (page = 1) => {
     setLoading(true);
     try {
@@ -139,11 +158,24 @@ const CampList = () => {
           limit: campsPerPage
         }
       });
-
+  
       const campgrounds = Array.isArray(response.data.campgrounds) ? response.data.campgrounds : [];
       setCamp(campgrounds);
       setTotalPages(response.data.totalPages || 1);
       setCurrentPage(page);
+  
+      // Fetch images only if they are missing
+      const imagePromises = campgrounds.map(async (camp) => {
+        if (!camp.imageUrl) {
+          const imageUrl = await fetchCampImage(camp);
+          return { [camp._id]: imageUrl };
+        }
+        return { [camp._id]: camp.imageUrl };
+      });
+  
+      const imageResults = await Promise.all(imagePromises);
+      const imagesMap = imageResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      setCampImages(imagesMap);
     } catch (error) {
       console.error('Error fetching campgrounds:', error);
       setCamp([]);
@@ -151,6 +183,9 @@ const CampList = () => {
       setLoading(false);
     }
   };
+  
+  
+
 
   useEffect(() => {
     setSearchTerm(loadState('searchTerm', ""));
@@ -263,13 +298,14 @@ const CampList = () => {
         <div className="camp-cards-container">
           {camps.length > 0 ? (
             camps.map(camp => {
-              const randomImageUrl = `https://random.imagecdn.app/v1/image?width=300&height=200&category=nature&format=image&unique=${camp._id}`;
+              const campImage = campImages[camp._id] || 
+                `https://random.imagecdn.app/v1/image?width=300&height=200&category=nature&format=image&unique=${camp._id}`;
 
               return (
                 <Link to={`/view/${camp._id}`} key={camp._id}>
                   <div className="camp-card"
                     style={{
-                      backgroundImage: `url(${randomImageUrl})`,
+                      backgroundImage: `url(${campImage})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center"
                     }}>

@@ -24,6 +24,7 @@
   "homepage": "https://github.com/COSC481W-2024Fall/CampQuest#readme",
   "dependencies": {
     "@react-google-maps/api": "^2.20.3",
+    "axios": "^1.7.9",
     "chromedriver": "^130.0.1",
     "mongodb": "^6.10.0",
     "selenium-webdriver": "^4.25.0"

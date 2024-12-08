@@ -1,5 +1,85 @@
 const router = require('express').Router();
 const Campground = require('../models/campground_model');
+const axios = require('axios');
+require('dotenv').config();
+
+router.get('/image', async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    // Search for the campground in the database
+    const existingCamp = await Campground.findOne({ campgroundName: new RegExp(query.split(',')[0], 'i') });
+
+    if (existingCamp && existingCamp.imageUrl) {
+      return res.json({ imageUrl: existingCamp.imageUrl });
+    }
+
+    // Fetch from Google Maps if not in database
+    if (!process.env.REACT_APP_GOOGLE_MAPS_API_KEY) {
+      return res.status(500).json({ message: 'Google Places API key is not configured' });
+    }
+
+    const searchQueries = [
+      query,
+      query.replace('campground', '').trim(),
+      query.split(',')[0],
+      `${query.split(',')[0]} campground`,
+      `campground near ${query}`,
+      `camping ${query}`
+    ];
+
+    for (const searchQuery of searchQueries) {
+      try {
+        const placesResponse = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
+          params: {
+            query: searchQuery,
+            key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+            type: 'campground'
+          }
+        });
+
+        const results = placesResponse.data.results;
+
+        if (!results || results.length === 0) continue;
+
+        for (const result of results) {
+          const photoReference = result.photos?.[0]?.photo_reference;
+
+          if (photoReference) {
+            const imageResponse = await axios.get('https://maps.googleapis.com/maps/api/place/photo', {
+              params: {
+                maxwidth: 400,
+                photoreference: photoReference,
+                key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+              },
+              responseType: 'text'
+            });
+
+            const imageUrl = imageResponse.request.res.responseUrl;
+
+            // Save the image URL to the database
+            existingCamp.imageUrl = imageUrl;
+            await existingCamp.save();
+
+            return res.json({ imageUrl });
+          }
+        }
+      } catch (searchError) {
+        console.error(`Error with search query ${searchQuery}:`, searchError.message);
+      }
+    }
+
+    return res.json({ imageUrl: null });
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    res.status(500).json({ message: 'Unexpected error in image retrieval', error: error.message });
+  }
+});
+
 
 // Utility function to construct queries
 const buildQuery = ({ campgroundName, amenities, types, states }) => {

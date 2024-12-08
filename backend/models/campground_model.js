@@ -57,7 +57,11 @@ const campgroundSchema = new mongoose.Schema({
             type: [Number]
         }
     },
-    reviews : [reviewSchema]
+    reviews : [reviewSchema],
+    imageUrl: {
+        type: String,
+        required: false
+    }
 },{ collection: 'ProductionCampsites' });
 
 campgroundSchema.index({ location: '2dsphere' });
