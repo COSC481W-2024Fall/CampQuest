@@ -3,7 +3,7 @@ import axios from 'axios';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { useParams, Link } from 'react-router-dom';
 import '../ViewCamp.css';
-import '../DetailsPage.css';
+import { useNavigate } from 'react-router-dom'
 import ReviewList from './reviews/ReviewList';
 const CampView = () => {
   const { id } = useParams();
@@ -105,7 +105,7 @@ const CampView = () => {
 
   const mapContainerStyle = {
     width: '100%',
-    height: '300px',
+    height: '500px',
   };
 
   // Decode amenities
@@ -147,6 +147,18 @@ const CampView = () => {
       }
     : { lat: 0, lng: 0 };
 
+      //Function to handle back button navigation
+      const navigate = useNavigate();
+      const handleBackClick = () => {
+        navigate(-1);
+      };
+      //Function to hide 'N/A' fields from campground details
+      const hideField = (label, value) => {
+        return value && value !== 'N/A' ? (
+          <p><strong>{label}</strong> {value}</p>
+        ) : null;
+      };
+    
   return (
     <div className="view-camp-container">
       {camp ? (
@@ -160,19 +172,21 @@ const CampView = () => {
                 </GoogleMap>
               </LoadScript>
             </div>
+      
             <div className="camp-details">
               <h1>{camp.campgroundName}</h1>
-              <p><strong>Location:</strong> {camp.latitude || 'N/A'}, {camp.longitude || 'N/A'}</p>
-              <p><strong>City:</strong> {camp.city || 'N/A'}</p>
-              <p><strong>State:</strong> {camp.state && statesMap[camp.state] ? statesMap[camp.state] : 'N/A'}</p>
-              <p><strong>Campground Type:</strong> {decodeType(camp.campgroundType)}</p>
-              <p><strong>Campground Amenities:</strong> {decodeAmenities(camp.amenities)}</p>
-              <p><strong>Phone:</strong> {camp.phoneNumber || 'N/A'}</p>
-              <p><strong>Number of Sites:</strong> {camp.numSites || 'N/A'}</p>
-              <p><strong>Dates Open:</strong> {camp.datesOpen || 'N/A'}</p>
-              <Link to="/">Back</Link>
+              {hideField('City', camp.city)}
+              {hideField('State', camp.state && statesMap[camp.state])}
+              {hideField('Campground Type', decodeType(camp.campgroundType))}
+              {hideField('Campground Amenities',decodeAmenities(camp.amenities))}
+              {hideField('Phone', camp.phoneNumber)}
+              {hideField('Number of Sites',camp.numSites)}
+              {hideField('Dates Open' ,camp.datesOpen)}
+              <button onClick ={ handleBackClick }>Back</button>
             </div>
           </div>
+
+      
           <div className="review-section">
             <h2>Leave a Review</h2>
             <ReviewList campgroundId={id} />
@@ -198,6 +212,8 @@ const CampView = () => {
       )}
     </div>
   );
+      
 };
+
 
 export default CampView;
