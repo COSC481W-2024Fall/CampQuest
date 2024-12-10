@@ -50,14 +50,15 @@
     justify-content: center; /* Centers cards in the container */
   }
   
-  .camping-card {
-    background-color: #f9f9f9;
-    border-radius: 8px;
+  .similar-camp-card {
+    background-color: white;
     padding: 10px;
+    border-radius: 5px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    flex: 1 1 100%;
-    max-width: 300px; /* Limit individual card width */
+    border-style: dashed;
+    border-color: green;
+    color: Black;
+    min-height: 150px;
   }
   
   /* Responsive Styles */
@@ -76,7 +77,7 @@
       justify-content: center; /* Ensures centering for the grid layout */
     }
   
-    .camping-card {
+    .similar-camp-card {
       flex: 1 1 calc(33.333% - 10px); /* 3 cards per row for larger screens */
       max-width: none;
     }

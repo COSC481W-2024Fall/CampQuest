@@ -178,13 +178,17 @@ const CampView = () => {
             <ReviewList campgroundId={id} />
           </div>
           {/* Similar Campgrounds */}
-          <div className="similar-campgrounds">
+          <div data-testid = "similar-camps" className="similar-campgrounds">
             <h2>Nearby Campgrounds</h2>
             <div className="campgrounds">
               {similarCamps.length > 0 ? (
                 similarCamps.map((similarCamp) => (
                   <Link to={`/view/${similarCamp._id}`} key={similarCamp._id}>
-                    <div className="camping-card">{similarCamp.campgroundName}</div>
+                    <div className="similar-camp-card">
+                      <h3 data-testid="similar-camp-name">{similarCamp.campgroundName}</h3>
+                      <p>{similarCamp.city}, {similarCamp.state}</p>
+                      <p>{decodeType(similarCamp.campgroundType)}</p>
+                      </div>
                   </Link>
                 ))
               ) : (
