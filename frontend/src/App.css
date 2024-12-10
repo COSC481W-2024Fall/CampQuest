@@ -70,6 +70,7 @@
 input.searchText{
   margin-top: 0.5pc;
   margin-bottom: 1.5pc;
+  margin-right: 1.0pc;
 }
 
 .camp-cards-container {
@@ -121,7 +122,8 @@ input.searchText{
 
 .pagination {
   margin-top: 20px;
-  color: #666
+  color: #ffffff;
+  font-weight: bold;
 }
 
 .pagination button {
@@ -169,6 +171,7 @@ input.searchText{
   position: relative;
   display: inline-block;
   margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .dropdown-button {
@@ -179,18 +182,23 @@ input.searchText{
   border-radius: 4px;
 }
 
+.clear-filters {
+  margin-bottom: 10px;
+}
+
 .dropdown-menu {
   position: absolute;
   background-color: white;
   border: 1px solid #ccc;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
-  width: 200px;
+  width: 350px;
   max-height: 300px;
   overflow-y: auto;
   margin-top: 4px;
   border-radius: 4px;
 }
+
 
 .dropdown-item {
   display: flex;

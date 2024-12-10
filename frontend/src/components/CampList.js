@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import DropdownCheckbox from './DropdownCheckbox/DropdownCheckbox';
 import '../App.css';
 
 const saveState = (key, value) => {
@@ -78,14 +79,34 @@ const CampList = () => {
   ];
 
   const campgroundTypeList = [
+    { code: '0', label: 'Private Land'},
+    { code: 'PR', label: 'Private Recreation Area' },
     { code: 'CP', label: 'County Park' },
     { code: 'COE', label: 'Corps of Engineers' },
     { code: 'NP', label: 'National Park' },
     { code: 'NF', label: 'National Forest' },
-    { code: 'SP', label: 'State Park' },
-    { code: 'PP', label: 'Provincial Park' },
+    { code: 'NWR', label: 'National Wildlife Refuge Campground'},
+    { code: 'NM', label: 'National Monument Park'},
+    { code: 'NRA', label: 'National Recreation Area'}, 
+    { code: 'NS', label: 'National Seashore Park'},
+    { code: 'SP', label: 'State Park Campground' },
+    { code: 'SB', label: 'State Beach Campground'},
+    { code: 'SF', label: 'State Forrest Park'},
+    { code: 'SRA', label: 'State Recreation Area'},
+    { code: 'SR', label: 'State Reserve Land'},
+    { code: 'SPA', label: 'State Preservation Area'},
+    { code: 'SRVA', label: 'State Recreation and Vehicle Area'},
+    { code: 'TVA', label: 'Tennessee Valley Authority'},
+    { code: 'AMC', label: 'Appalachian Mountain Club Campground'},
     { code: 'RV', label: 'RV Park' },
-    { code: 'BML', label: 'Bureau of Land Management' }
+    { code: 'RES', label: 'Resevoir Recreation Area'},
+    { code: 'BLM', label: 'Bureau of Land Management' }, 
+    { code: 'BOR', label: 'Bureau of Reclamation Land'},
+    { code: 'MIL', label: 'Military Recreation Campground'}, 
+    { code: 'SCA', label: 'Scenic Area Campground'}, 
+    { code: 'UTIL', label: 'Utility-Managed Campground'},
+    { code: 'USFW', label: 'U.S. FIsh and Wildlife Service Park'}, 
+    { code: 'SFW', label: 'State Fish and Wildlife Park'}
   ];
 
   const amenitiesList = [
@@ -203,11 +224,8 @@ const CampList = () => {
     saveState('selectedAmenities', selectedAmenities);
     saveState('selectedTypes', selectedTypes);
     saveState('currentPage', currentPage);
-  }, [searchTerm, selectedAmenities, selectedTypes, currentPage]);
-
-  const handleFilterChange = (value, setter) => {
-    setter(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
-  };
+    saveState('selectedStates', selectedStates);
+  }, [searchTerm, selectedAmenities, selectedTypes, selectedStates, currentPage]);
 
   const changePage = (direction) => {
     const newPage = currentPage + direction;
@@ -216,37 +234,10 @@ const CampList = () => {
     }
   };
 
-  const DropdownCheckbox = ({ label, options, selected, setSelected }) => {
-    const [open, setOpen] = useState(false);
-
-    return (
-      <div className="dropdown-checkbox">
-        <button className="dropdown-button" onClick={() => setOpen(!open)}>
-          {label} {selected.length > 0 && `(${selected.length})`}
-        </button>
-        {open && (
-          <div className="dropdown-menu" onBlur={() => setOpen(false)} tabIndex={0}>
-            {options.map(option => (
-              <label key={option.code} className="dropdown-item">
-                <input
-                  type="checkbox"
-                  value={option.code}
-                  checked={selected.includes(option.code)}
-                  onChange={() => handleFilterChange(option.code, setSelected)}
-                />
-                {option.label}
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="camp-list">
-      <form onSubmit={handleSearchFormSubmit}>
-        <input
+      <form id="searchForm" onSubmit={handleSearchFormSubmit}>
+        <input 
           className="searchText"
           type="text"
           name="search"
@@ -281,11 +272,13 @@ const CampList = () => {
             setSearchTerm("");
             setSelectedAmenities([]);
             setSelectedTypes([]);
+            setSelectedStates([]);
             setCurrentPage(1);
             saveState('searchTerm', "");
             saveState('selectedAmenities', []);
             saveState('selectedTypes', []);
-            fetchCamps(1);
+            saveState('selectedStates', []);
+            document.getElementById('searchForm').reset();
           }}
         >
           Clear Filters
